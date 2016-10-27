@@ -15,6 +15,10 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
         if section.startswith('connection:'):
             connection = {}
             try:
+                connection['protocol'] = contents['protocol']
+            except KeyError as err:
+                raise RuntimeError('protocol must be provided in connection configuration') from err
+            try:
                 connection['domain'] = contents['domain']
             except KeyError as err:
                 raise RuntimeError('domain must be provided in connection configuration') from err
