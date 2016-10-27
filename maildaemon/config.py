@@ -9,9 +9,7 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
 
     config.read(path)
 
-    parsed_config = {
-        'connections': {}
-        }
+    connections = {}
 
     for section, contents in config.items():
         if section.startswith('connection:'):
@@ -36,6 +34,8 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
                 connection['password'] = contents['password']
             except KeyError:
                 pass
-            parsed_config['connections'][section] = connection
+            connections[section.replace('connection:', '', 1).strip()] = connection
 
-    return parsed_config
+    return  {
+        'connections': connections
+        }
