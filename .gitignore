@@ -1,1 +1,10 @@
 /.maildaemon.config
+
+# temporary files
+/build
+/dist
+/.coverage
+__pycache__
+*.egg
+*.egg-info
+*.pyc
