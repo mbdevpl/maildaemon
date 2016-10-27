@@ -1,11 +1,16 @@
 
 import imaplib
 import logging
+import socket
 import typing as t
 
 from .connection import Connection
 
 _LOG = logging.getLogger(__name__)
+
+TIMEOUT = 10
+
+socket.setdefaulttimeout(TIMEOUT)
 
 class IMAPConnection(Connection):
     """
@@ -34,29 +39,29 @@ class IMAPConnection(Connection):
         Use imaplib.login() command.
         """
 
+        status = None
         try:
             status, response = self._link.login(self.login, self.password)
             _LOG.info(
                 '%s: login(%s, %s) status: %s, response: %s',
                 self, self.login, '***', status, [r.decode() for r in response])
-            if status != 'OK':
-                raise RuntimeError('connect() failed')
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: login(%s, %s) failed', self, self.login, '***')
             raise RuntimeError('connect() failed') from err
+
+        if status != 'OK':
+            raise RuntimeError('connect() failed')
 
     def is_alive(self) -> bool:
         """
         Use imaplib.noop() command.
         """
 
-        is_alive = False
-
+        status = None
         try:
             status, response = self._link.noop()
             _LOG.info(
                 '%s: noop() status: %s, response: %s', self, status, [r.decode() for r in response])
-            is_alive = status == 'OK'
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: noop() failed', self)
             raise RuntimeError('is_alive() failed') from err
@@ -64,7 +69,7 @@ class IMAPConnection(Connection):
             _LOG.exception('%s: noop() failed', self)
             raise RuntimeError('is_alive() failed') from err
 
-        return is_alive
+        return status == 'OK'
 
     '''
     def retrieve_namespace(self):
@@ -151,7 +156,7 @@ class IMAPConnection(Connection):
         if folder is None:
             folder = self._folder
 
-        self.select_folder(folder)
+        self.open_folder(folder)
 
         status = None
         try:

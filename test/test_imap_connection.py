@@ -14,14 +14,17 @@ class TestIMAPConnection(unittest.TestCase):
 
         c.connect()
         c.open_folder()
-        _ = c.retrieve_messages_parts([1, 2], ['ENVELOPE'])
-        for env, msg in _:
-            print(1, len(env), len(msg) if isinstance(msg, bytes) else msg)
         _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
         for env, msg in _:
-            print(2, len(env), len(msg) if isinstance(msg, bytes) else msg)
+            #print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
+            self.assertGreater(len(env), 0, msg=_)
+            self.assertIsNone(msg, msg=_)
         _ = c.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
         for env, msg in _:
-            print(3, len(env), len(msg) if isinstance(msg, bytes) else msg)
+            #print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
+            self.assertGreater(len(env), 0, msg=_)
+            self.assertGreater(len(msg), 0, msg=_)
         c.close_folder()
+        alive = c.is_alive()
+        self.assertTrue(alive, msg=c)
         c.disconnect()
