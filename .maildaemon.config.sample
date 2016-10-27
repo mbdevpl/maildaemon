@@ -1,0 +1,15 @@
+[connection: gmail-imap]
+  protocol = IMAP
+  domain = imap.gmail.com
+  ssl = True
+  port = 993
+  login = abcd@gmail.com
+  password = abcdefgh
+
+[connection: gmail-smtp]
+  protocol = SMTP
+  domain = smtp.gmail.com
+  ssl = True
+  port = 587
+  login = abcd@gmail.com
+  password = abcdefgh
