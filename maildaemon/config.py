@@ -1,4 +1,5 @@
 
+import ast
 import configparser
 
 DEFAULT_CONFIG_PATH = '.maildaemon.config'
@@ -23,7 +24,7 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
             except KeyError as err:
                 raise RuntimeError('domain must be provided in connection configuration') from err
             try:
-                connection['ssl'] = bool(contents['ssl'])
+                connection['ssl'] = ast.literal_eval(contents['ssl'])
             except KeyError:
                 pass
             try:
