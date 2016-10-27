@@ -1,7 +1,11 @@
 
-from .connection import Connection
+import logging
 
-class ConnectionGroup(Connection):
+#from .connection import Connection
+
+_LOG = logging.getLogger(__name__)
+
+class ConnectionGroup:
 
     def __init__(self, *connections):
 
@@ -10,6 +14,8 @@ class ConnectionGroup(Connection):
             self._connections.append(connection)
 
     def connect(self) -> None:
+
+        _LOG.info('establishing %i connections...', len(self))
 
         for connection in self._connections:
             connection.connect()
@@ -26,5 +32,13 @@ class ConnectionGroup(Connection):
 
     def disconnect(self) -> None:
 
+        _LOG.info('ending %i connections...', len(self))
+
         for connection in self._connections:
             connection.disconnect()
+
+    def __len__(self):
+        return len(self._connections)
+
+    def __iter__(self):
+        return iter(self._connections)
