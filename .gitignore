@@ -5,6 +5,7 @@
 /dist
 /.coverage
 __pycache__
+*-checkpoint.ipynb
 *.egg
 *.egg-info
 *.pyc
