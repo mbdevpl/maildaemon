@@ -32,16 +32,17 @@ class Connection(metaclass=abc.ABCMeta):
                 except KeyError:
                     raise RuntimeError(
                         'failed to construct {} from dictionary {}'.format(cls.__name__, data))
+
         try:
             connection.login = data['login']
         except KeyError:
             pass
         try:
-            connection.login = data['password']
+            connection.password = data['password']
         except KeyError:
             pass
 
-        return cls
+        return connection
 
     def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
 
