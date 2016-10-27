@@ -18,6 +18,31 @@ class Connection(metaclass=abc.ABCMeta):
     ports = []
     ssl_ports = []
 
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Connection':
+
+        try:
+            connection = cls(domain=data['domain'], ssl=data['ssl'], port=data['port'])
+        except KeyError:
+            try:
+                connection = cls(domain=data['domain'], ssl=data['ssl'])
+            except KeyError:
+                try:
+                    connection = cls(domain=data['domain'])
+                except KeyError:
+                    raise RuntimeError(
+                        'failed to construct {} from dictionary {}'.format(cls.__name__, data))
+        try:
+            connection.login = data['login']
+        except KeyError:
+            pass
+        try:
+            connection.login = data['password']
+        except KeyError:
+            pass
+
+        return cls
+
     def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
 
         self.domain = domain # type: str
