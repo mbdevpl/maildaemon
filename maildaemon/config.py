@@ -11,8 +11,10 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
     config.read(path)
 
     connections = {}
+    filters = {}
 
     for section, contents in config.items():
+
         if section.startswith('connection:'):
             connection = {}
             try:
@@ -41,6 +43,23 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
                 pass
             connections[section.replace('connection:', '', 1).strip()] = connection
 
+        if section.startswith('filter:'):
+            filter_ = {}
+            try:
+                filter_['connections'] = [c.strip() for c in contents['connections'].split(',')]
+            except KeyError:
+                pass
+            try:
+                filter_['condition'] = [[c.strip() for c in d.strip().split(' and ')] for d in contents['condition'].split(' or ')]
+            except KeyError:
+                pass
+            try:
+                filter_['action'] = [a.strip() for a in contents['action'].split(',')]
+            except KeyError:
+                pass
+            filters[section.replace('filter:', '', 1).strip()] = filter_
+
     return  {
-        'connections': connections
+        'connections': connections,
+        'filters': filters
         }
