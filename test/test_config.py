@@ -4,7 +4,7 @@ import unittest
 
 from maildaemon.config import load_config
 
-class TestConfig(unittest.TestCase):
+class Test(unittest.TestCase):
 
     def test_methodology(self):
 

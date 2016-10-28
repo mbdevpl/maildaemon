@@ -4,7 +4,7 @@ import unittest
 from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
 
-class TestIMAPConnection(unittest.TestCase):
+class Test(unittest.TestCase):
 
     config = load_config()
 
