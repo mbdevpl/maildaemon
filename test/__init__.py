@@ -1,3 +1,6 @@
+"""
+This is "__init__.py" file of tests for maildaemon.
+"""
 
 import logging
 
