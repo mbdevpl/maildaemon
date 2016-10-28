@@ -63,11 +63,11 @@ class IMAPConnection(Connection):
             _LOG.info(
                 '%s: noop() status: %s, response: %s', self, status, [r.decode() for r in response])
         except imaplib.IMAP4.error as err:
-            _LOG.exception('%s: noop() failed', self)
-            raise RuntimeError('is_alive() failed') from err
+            _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
+            #raise RuntimeError('is_alive() failed') from err
         except OSError as err:
-            _LOG.exception('%s: noop() failed', self)
-            raise RuntimeError('is_alive() failed') from err
+            _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
+            #raise RuntimeError('is_alive() failed') from err
 
         return status == 'OK'
 
