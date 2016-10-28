@@ -2,10 +2,39 @@
 import logging
 
 #from .connection import Connection
+from .imap_daemon import IMAPDaemon
+from .smtp_connection import SMTPConnection
+from .pop_daemon import POPDaemon
 
 _LOG = logging.getLogger(__name__)
 
 class ConnectionGroup:
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'ConnectionGroup':
+
+        connections = []
+        for name, data in data.items():
+            try:
+                connection_class = {
+                    'IMAP': IMAPDaemon,
+                    'SMTP': SMTPConnection,
+                    'POP': POPDaemon
+                    }[data['protocol']]
+            except KeyError:
+                #_LOG.exception('invalid protocol: "%s"', data['protocol'])
+                continue
+
+            try:
+                connection = connection_class.from_dict(data)
+            except:
+                _LOG.exception(
+                    'failed to construct connection object for "%s" with parameters: %s', name, data)
+                continue
+
+            connections.append(connection)
+
+        return cls(*connections)
 
     def __init__(self, *connections):
 
@@ -13,14 +42,14 @@ class ConnectionGroup:
         for connection in connections:
             self._connections.append(connection)
 
-    def connect(self) -> None:
+    def connect_all(self) -> None:
 
         _LOG.info('establishing %i connections...', len(self))
 
         for connection in self._connections:
             connection.connect()
 
-    def is_alive(self) -> bool:
+    def all_alive(self) -> bool:
 
         all_alive = True
 
@@ -30,7 +59,24 @@ class ConnectionGroup:
 
         return all_alive
 
-    def disconnect(self) -> None:
+    def purge_dead(self) -> None:
+        """
+        Check connections one by one and remove dead ones.
+        """
+
+        dead_connections = []
+        for i, connection in enumerate(self._connections):
+            if not connection.is_alive():
+                dead_connections.append(i)
+                _LOG.info('lost connection with %s', connection)
+
+        for i in reversed(dead_connections):
+            del self._connections[i]
+
+        if len(self._connections) == 0:
+            _LOG.warning('lost all connections')
+
+    def disconnect_all(self) -> None:
 
         _LOG.info('ending %i connections...', len(self))
 
