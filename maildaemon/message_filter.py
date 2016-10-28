@@ -10,7 +10,7 @@ from .connection import Connection
 
 _LOG = logging.getLogger(__name__)
 
-OPERATORS = {
+CONDITION_OPERATORS = {
     #'>': lambda arg: functools.partial(),
     '=': lambda arg: functools.partial(operator.eq, arg),
     #'!=': lambda a, b: a != b,
@@ -26,12 +26,31 @@ Define a mapping: str -> t.Callable[[str], t.Callable[[str], bool]].
 
 In such mapping:
 
- - key is a 1- or 2-character string representation of a predicate on string variable.
+ - key is a 1- or 2-character string representation of a predicate on string variable; and
  
- - value is a 1-argument function that creates another 1-argument function (a said predicate)
+ - value is a 1-argument function that creates another 1-argument function (a said predicate).
 
 Every operator is meant to create and return one-argument function that applies a predicate
 on its argument.
+"""
+
+ACTIONS = {
+    'mark': lambda message, imap_daemon, flag: imap_daemon.set_flag(message, flag),
+    #'move_to': lambda message, imap_daemon, folder: imap_daemon.copy,
+    'copy_to': lambda message, imap_daemon, folder: imap_daemon.copy_to(message, folder)
+    }
+"""
+Define a mapping: str -> t.Callable[[Message], None].
+
+In such mapping:
+
+ - key is a string representation of an operation on Message instance; and
+
+ - value is a function which takes Message instance and possibly other arguments, and executes
+   said operation.
+
+Every action is meant to create and return one-argument function that performs an operation
+involving a and possibly other entities.
 """
 
 class MessageFilter:
@@ -40,15 +59,25 @@ class MessageFilter:
     def from_dict(
             cls, data: dict, named_connections: t.Mapping[str, Connection]={}) -> 'MessageFilter':
 
+        try:
+            connection_names = data['connections']
+        except KeyError:
+            connection_names = []
+
         connections = []
-        for connection_name in data['connections']:
+        for connection_name in connection_names:
             connection = named_connections[connection_name]
             connections.append(connection)
 
+        try:
+            disjunction = data['condition']
+        except KeyError:
+            disjunction = []
+
         condition = []
-        if len(data['condition']) > 1:
+        if len(disjunction) > 1:
             _LOG.debug('[')
-        for i, disjunct in enumerate(data['condition']):
+        for i, disjunct in enumerate(disjunction):
             if i > 0:
                 _LOG.debug('] or [')
             if len(disjunct) > 1:
@@ -62,28 +91,42 @@ class MessageFilter:
                 operator_ = operator_and_arg[:2]
                 arg = operator_and_arg[2:]
                 try:
-                    op_function = OPERATORS[operator_](arg)
+                    op_function = CONDITION_OPERATORS[operator_](arg)
                 except KeyError:
                     operator_ = operator_and_arg[:1]
                     arg = operator_and_arg[1:]
                     try:
-                        op_function = OPERATORS[operator_](arg)
+                        op_function = CONDITION_OPERATORS[operator_](arg)
                     except KeyError as err:
                         raise RuntimeError() from err
-                _LOG.info(
+                _LOG.debug(
                     'parsed to e-mail variable: "%s", operator: %s, argument: "%s" (mapped to %s)',
                     variable, operator_, arg, op_function)
                 conjunction.append((variable, op_function))
             condition.append(conjunction)
             if len(disjunct) > 1:
                 _LOG.debug(')')
-        if len(data['condition']) > 1:
+        if len(disjunction) > 1:
             _LOG.debug(']')
 
-        #print(data)
-        #print(named_connections)
+        try:
+            action_strings = data['actions']
+        except KeyError:
+            action_strings = []
 
         actions = []
+        for action_string in action_strings:
+            _LOG.debug('parsing action: %s', action_string)
+            operation, _, args = action_string.partition(':')
+            try:
+                action = ACTIONS[operation]
+            except KeyError as err:
+                _LOG.exception('action "%s" consists of invalid operation "%s"', action_string, operation)
+                raise RuntimeError('cannot construct the filter with invalid action')
+            _LOG.debug('parsed to operation %s, args: %s (mapped to action %s)', operation, args, action)
+            actions.append(action)
+
+        print(data)
 
         return cls(connections, condition, actions)
 

@@ -54,7 +54,7 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
             except KeyError:
                 pass
             try:
-                filter_['action'] = [a.strip() for a in contents['action'].split(',')]
+                filter_['actions'] = [a.strip() for a in contents['actions'].split(',')]
             except KeyError:
                 pass
             filters[section.replace('filter:', '', 1).strip()] = filter_
