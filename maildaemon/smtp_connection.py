@@ -1,4 +1,5 @@
 
+import email.message
 import logging
 import smtplib
 import typing as t
@@ -70,7 +71,7 @@ class SMTPConnection(Connection):
 
         return status in range(200, 300)
 
-    def send_message(self, message) -> None:
+    def send_message(self, message: email.message.Message) -> None:
 
         #status = self._link.send_message(msg, to_addrs=message.to_address)
         #_LOG.debug('send_message() status: %s', status)

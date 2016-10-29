@@ -126,8 +126,6 @@ class MessageFilter:
             _LOG.debug('parsed to operation %s, args: %s (mapped to action %s)', operation, args, action)
             actions.append(action)
 
-        print(data)
-
         return cls(connections, condition, actions)
 
     def __init__(

@@ -8,8 +8,6 @@ import abc
 import getpass
 import typing as t
 
-#from .message import Message
-
 class Connection(metaclass=abc.ABCMeta):
     """
     General notion of a connection to some server.
@@ -124,9 +122,3 @@ class Connection(metaclass=abc.ABCMeta):
 
         args = [self.domain, str(self.port), 'SSL' if self.ssl else 'plaintext']
         return '{}({})'.format(type(self).__name__, ', '.join(args))
-
-    '''
-    def send_message(self, message: Message) -> None:
-
-        raise NotImplementedError()
-    '''
