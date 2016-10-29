@@ -73,9 +73,16 @@ class SMTPConnection(Connection):
 
     def send_message(self, message: email.message.Message) -> None:
 
-        #status = self._link.send_message(msg, to_addrs=message.to_address)
-        #_LOG.debug('send_message() status: %s', status)
-        pass
+        status = None
+        try:
+            status = self._link.send_message(message)
+            _LOG.info('%s: send_message(%s) status: %s', self, '***', status)
+        except smtplib.SMTPException as err:
+            _LOG.exception('%s: send_message(%s) failed', self, '***')
+            raise RuntimeError('send_message() failed') from err
+
+        if not isinstance(status, dict) or len(status) > 0:
+            raise RuntimeError('send_message() failed')
 
     def disconnect(self) -> None:
 
