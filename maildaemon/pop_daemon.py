@@ -4,14 +4,16 @@ import logging
 import typing as t
 
 from .message import Message
+from .daemon import Daemon
 from .pop_connection import POPConnection
 
 _LOG = logging.getLogger(__name__)
 
-class POPDaemon(POPConnection):
+class POPDaemon(Daemon, POPConnection):
 
     def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
-        super().__init__(domain, ssl, port)
+        Daemon.__init__(self)
+        POPConnection.__init__(self, domain, ssl, port)
 
         self.folders = ['INBOX'] # type: t.List[str]
         self.message_ids = {'INBOX': []} # type: t.Mapping[str, t.List[int]]

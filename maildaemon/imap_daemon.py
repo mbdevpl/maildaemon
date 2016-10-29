@@ -7,14 +7,16 @@ import logging
 import typing as t
 
 from .message import Message
+from .daemon import Daemon
 from .imap_connection import IMAPConnection
 
 _LOG = logging.getLogger(__name__)
 
-class IMAPDaemon(IMAPConnection):
+class IMAPDaemon(Daemon, IMAPConnection):
 
     def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
-        super().__init__(domain, ssl, port)
+        Daemon.__init__(self)
+        IMAPConnection.__init__(self, domain, ssl, port)
 
         self.folders = [] # type: t.List[str]
         self.message_ids = {} # type: t.Mapping[str, t.List[int]]
