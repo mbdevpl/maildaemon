@@ -25,16 +25,16 @@ class Test(unittest.TestCase):
         self.assertIn('connections', cfg, msg=cfg)
         self.assertGreater(len(cfg['connections']), 0, msg=cfg)
 
-        self.assertIn('gmail-imap', cfg['connections'], msg=cfg)
-        self.assertIn('gmail-smtp', cfg['connections'], msg=cfg)
+        self.assertIn('test-imap', cfg['connections'], msg=cfg)
+        #self.assertIn('gmail-smtp', cfg['connections'], msg=cfg)
 
     def test_load_config_completeness(self):
 
         cfg = load_config()
 
-        self.assertIn('gmail-imap', cfg['connections'], msg=cfg)
+        self.assertIn('test-imap', cfg['connections'], msg=cfg)
 
-        section = cfg['connections']['gmail-imap']
+        section = cfg['connections']['test-imap']
         self.assertIn('domain', section, msg=cfg)
         self.assertIn('ssl', section, msg=cfg)
         self.assertIn('port', section, msg=cfg)

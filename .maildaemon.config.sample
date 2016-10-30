@@ -1,3 +1,35 @@
+[connection: test-imap]
+  protocol = IMAP
+  domain = 127.0.0.1
+  ssl = False
+  port = 143
+  login = testuser
+  password = applesauce
+
+[connection: test-imap-ssl]
+  protocol = IMAP
+  domain = 127.0.0.1
+  ssl = True
+  port = 993
+  login = testuser
+  password = applesauce
+
+[connection: test-pop]
+  protocol = POP
+  domain = 127.0.0.1
+  ssl = False
+  port = 110
+  login = testuser
+  password = applesauce
+
+[connection: test-pop-ssl]
+  protocol = POP
+  domain = 127.0.0.1
+  ssl = True
+  port = 995
+  login = testuser
+  password = applesauce
+
 [connection: gmail-imap]
   protocol = IMAP
   domain = imap.gmail.com

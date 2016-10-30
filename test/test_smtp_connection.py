@@ -10,12 +10,14 @@ class Test(unittest.TestCase):
 
     config = load_config()
 
+    @unittest.skip('temporary')
     def test_connect(self):
 
         s = SMTPConnection.from_dict(self.config['connections']['gmail-smtp'])
         s.connect()
         s.disconnect()
 
+    @unittest.skip('temporary')
     def test_send_message(self):
 
         c = IMAPConnection.from_dict(self.config['connections']['1and1-imap'])

@@ -10,7 +10,7 @@ class Test(unittest.TestCase):
 
     def test_retrieve_message_ids(self):
 
-        c = POPConnection.from_dict(self.config['connections']['itscom-pop'])
+        c = POPConnection.from_dict(self.config['connections']['test-pop'])
 
         c.connect()
         ids = c.retrieve_message_ids()
