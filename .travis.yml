@@ -10,7 +10,7 @@ before_install:
   - python setup.py bdist_wheel
   - cp .maildaemon.config{.sample,}
   - git clone https://github.com/tedious/DovecotTesting ../DovecotTesting
-  - ../DovecotTesting/SetupEnvironment.sh
+  - bash ../DovecotTesting/SetupEnvironment.sh
 
 install:
   - ls -1tr dist/*tar.gz | tail -n 1 | xargs pip install
