@@ -14,6 +14,7 @@ class ConnectionGroup:
     def from_dict(cls, data: dict) -> 'ConnectionGroup':
 
         connections = []
+        names = []
         for name, data in data.items():
             try:
                 connection_class = {
@@ -33,14 +34,29 @@ class ConnectionGroup:
                 continue
 
             connections.append(connection)
+            names.append(name)
 
-        return cls(*connections)
+        group = cls(*connections)
+        group._names = names
+
+        return group
 
     def __init__(self, *connections):
 
         self._connections = []
         for connection in connections:
             self._connections.append(connection)
+
+        self._names = None
+        self._named_connections = None
+
+    @property
+    def named_connections(self):
+
+        if self._named_connections is None:
+            self._named_connections = {k: v for k, v in zip(self._names, self._connections)}
+
+        return self._named_connections
 
     def connect_all(self) -> None:
 
