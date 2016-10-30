@@ -12,27 +12,28 @@ class Test(unittest.TestCase):
 
     config = load_config()
 
-    @unittest.skip('temporary')
     def test_retrieve_messages_parts(self):
 
-        c = IMAPConnection.from_dict(self.config['connections']['gmail-imap'])
+        for connection_name in ['test-imap', 'test-imap-ssl']:
+            with self.subTest(msg=connection_name):
+                c = IMAPConnection.from_dict(self.config['connections'][connection_name])
 
-        c.connect()
-        c.open_folder()
-        _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
-        for env, msg in _:
-            #print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
-            self.assertGreater(len(env), 0, msg=_)
-            self.assertIsNone(msg, msg=_)
-        _ = c.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
-        for env, msg in _:
-            #print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
-            self.assertGreater(len(env), 0, msg=_)
-            self.assertGreater(len(msg), 0, msg=_)
-        c.close_folder()
-        alive = c.is_alive()
-        self.assertTrue(alive, msg=c)
-        c.disconnect()
+                c.connect()
+                c.open_folder()
+                _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
+                for env, msg in _:
+                    #print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
+                    self.assertGreater(len(env), 0, msg=_)
+                    self.assertIsNone(msg, msg=_)
+                _ = c.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
+                for env, msg in _:
+                    #print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
+                    self.assertGreater(len(env), 0, msg=_)
+                    self.assertGreater(len(msg), 0, msg=_)
+                c.close_folder()
+                alive = c.is_alive()
+                self.assertTrue(alive, msg=c)
+                c.disconnect()
 
     @unittest.skip('long')
     def test_timeout(self):
