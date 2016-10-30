@@ -265,6 +265,132 @@ class IMAPConnection(Connection):
 
         return data[0]
 
+    def _alter_messages_flags(
+            self, message_ids: t.Sequence[int], flags: t.Sequence[str],
+            alteration: t.Optional[bool]=True, silent: bool=False,
+            folder: t.Optional[str]=None) -> None:
+        """
+        Alter flags on messages.
+
+        :param message_ids: list of IDs of messages
+        :param flags: list of strings of: 'Deleted', etc.
+        :param alteration: True means "+FLAGS", False "-FLAGS" and None means "FLAGS"
+        :param silent: add ".SILENT" to the alteration if True
+        :param folder: optional, uses currently open folder if none provided, and opens default
+          folder if none is opened
+
+        Use imaplib.store().
+
+        See STORE method definition: https://tools.ietf.org/html/rfc3501#section-6.4.6
+        """
+
+        if folder is None:
+            folder = self._folder
+
+        self.open_folder(folder)
+
+        command_prefix = {True: '+', False: '-', None: ''}[alteration]
+        command_suffix = {True: '.SILENT', False: ''}[silent]
+
+        command = '{}FLAGS{}'.format(command_prefix, command_suffix)
+
+        # TODO: add error handling for store()
+        status, response = self._link.store(
+            ','.join([str(message_id) for message_id in message_ids]), command,
+            '({})'.format(' '.join(['\\{}'.format(flag) for flag in flags])))
+        _LOG.info(
+            '%s: store(%s, %s, %s) status: %s, response: %s',
+            self, message_ids, command, flags, status, response)
+
+    def add_messages_flags(
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
+            folder: t.Optional[str]=None):
+        """
+        Issue "+FLAGS" command.
+        """
+
+        self._alter_messages_flags(message_ids, flags, True, silent, folder)
+
+    def remove_messages_flags(
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
+            folder: t.Optional[str]=None):
+        """
+        Issue "-FLAGS" command.
+        """
+
+        self._alter_messages_flags(message_ids, flags, False, silent, folder)
+
+    def set_messages_flags(
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
+            folder: t.Optional[str]=None):
+        """
+        Issue "FLAGS" command.
+        """
+
+        self._alter_messages_flags(message_ids, flags, None, silent, folder)
+
+    def copy_messages(
+            self, message_ids: t.List[int], target_folder: str,
+            source_folder: t.Optional[str]=None) -> None:
+        """
+        Copy messages to a different folder within the same connection.
+        """
+
+        if source_folder is None:
+            source_folder = self._folder
+
+        self.open_folder(source_folder)
+
+        if self._folder == target_folder:
+            raise RuntimeError(
+                'copy_messages() failed because source and target folders are the same')
+
+        status = None
+        try:
+            status, response = self._link.copy(
+                ','.join([str(message_id) for message_id in message_ids]),
+                '"{}"'.format(target_folder))
+            _LOG.info(
+                '%s: copy(%s, "%s") status: %s, response: %s',
+                self, message_ids, target_folder, status, [r.decode() for r in response])
+        except imaplib.IMAP4.error as err:
+            _LOG.exception('%s: copy(%s, "%s") failed', self, message_ids, target_folder)
+            raise RuntimeError('copy_messages() failed') from err
+
+        if status != 'OK':
+            raise RuntimeError('copy_messages() failed')
+
+    def copy_message(
+            self, message_id: int, target_folder: str,
+            source_folder: t.Optional[str]=None) -> None:
+
+        self.copy_messages([message_id], target_folder, source_folder)
+
+    def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str]=None) -> None:
+
+        self.add_messages_flags(message_ids, True, 'Deleted', folder)
+
+    def delete_message(self, message_id: int, folder: t.Optional[str]=None) -> None:
+
+        self.delete_messages([message_id], folder)
+
+    def move_messages(
+            self, message_ids: t.List[int], target_folder: str,
+            source_folder: t.Optional[str]=None) -> None:
+        """
+        Move messages from one folder to a different folder on the same connection.
+
+        This method does not rely on MOVE command https://tools.ietf.org/html/rfc6851
+        """
+
+        self.copy_messages(message_ids, target_folder, source_folder)
+        self.delete_messages(message_ids, source_folder)
+
+    def move_message(
+            self, message_id: int, target_folder: str, source_folder: t.Optional[str]=None) -> None:
+
+        self.move_messages([message_id], target_folder, source_folder)
+
     def close_folder(self) -> None:
         """
         Use imaplib.close() command.
