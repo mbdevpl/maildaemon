@@ -25,10 +25,11 @@ from .config import load_config
 #from .connection import Connection
 #from .connection_group import ConnectionGroup
 #from .imap_connection import IMAPConnection
-from .smtp_connection import SMTPConnection
+#from .smtp_connection import SMTPConnection
 #from .pop_connection import POPConnection
 
 #from .daemon import Daemon
 #from .daemon_group import DaemonGroup
 from .imap_daemon import IMAPDaemon
+from .smtp_daemon import SMTPDaemon
 from .pop_daemon import POPDaemon
