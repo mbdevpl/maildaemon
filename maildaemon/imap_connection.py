@@ -1,6 +1,7 @@
 
 import imaplib
 import logging
+import shlex
 import socket
 import typing as t
 
@@ -84,7 +85,7 @@ class IMAPConnection(Connection):
             raise RuntimeError('namespace() status: "{}"'.format(status))
     '''
 
-    def retrieve_folders(self) -> t.List[str]:
+    def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.List[str]]]:
         """
         Use imaplib.list() command.
         """
@@ -101,12 +102,30 @@ class IMAPConnection(Connection):
         if status != 'OK':
             raise RuntimeError('retrieve_folders() failed')
 
-        for i, folder in enumerate(folders):
-            end = folder.rfind('"')
-            begin = folder.rfind('"', 1, end) + 1
-            folders[i] = folder[begin:end]
+        folders_with_flags = []
+        for folder in folders:
+            #end = folder.rfind('"')
+            #begin = folder.rfind('"', 1, end) + 1
+            #folders[i] = folder[begin:end]
+            *raw_flags, _, folder_name = shlex.split(folder)
+            flag_str = raw_flags if isinstance(raw_flags, str) else ' '.join(raw_flags)
+            flag_str = flag_str[1:-1]
+            flags = flag_str.split()
+            _LOG.debug('%s: folder "%s" has flags %s', self, folder_name, flags)
+            folders_with_flags.append((folder_name, flags))
 
-        return folders
+        return folders_with_flags
+
+    def retrieve_folders(self) -> t.List[str]:
+
+        folders_with_flags = self.retrieve_folders_with_flags()
+
+        folder_names = []
+        for folder_with_flags in folders_with_flags:
+            folder_name, _ = folder_with_flags
+            folder_names.append(folder_name)
+
+        return folder_names
 
     '''
     def create_folder(self, folder: str) -> None:
