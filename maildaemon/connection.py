@@ -57,7 +57,7 @@ class Connection(metaclass=abc.ABCMeta):
 
         if self._port is not None:
             assert isinstance(self._port, int)
-            assert self._port in type(self).ssl_ports if self.ssl else self._port in type(self).ports
+            #assert self._port in type(self).ssl_ports if self.ssl else self._port in type(self).ports
             return self._port
 
         if self.ssl:
@@ -69,9 +69,9 @@ class Connection(metaclass=abc.ABCMeta):
     def port(self, port: t.Optional[int]):
 
         assert port is None or isinstance(port, int)
-        if __debug__:
-            if isinstance(port, int):
-                assert port in type(self).ssl_ports if self.ssl else port in type(self).ports
+        #if __debug__:
+        #    if isinstance(port, int):
+        #        assert port in type(self).ssl_ports if self.ssl else port in type(self).ports
 
         self._port = port
 
