@@ -28,6 +28,9 @@ from .config import load_config
 #from .smtp_connection import SMTPConnection
 #from .pop_connection import POPConnection
 
+#from .message import Message
+#from .message_filter import MessageFilter
+
 #from .daemon import Daemon
 #from .daemon_group import DaemonGroup
 from .imap_daemon import IMAPDaemon
