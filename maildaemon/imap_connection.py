@@ -18,8 +18,10 @@ class IMAPConnection(Connection):
     For handling IMAP connections.
 
     According to imaplib.IMAP4 documentation: "All IMAP4rev1 commands are supported".
-
     IMAP version 4 revision 1: https://tools.ietf.org/html/rfc3501
+
+    This class aims at simplyfing usage of those IMAP commands but also
+    at (at least partial) error handling and recovery from errors whenever possible.
     """
 
     ports = [143]
@@ -52,6 +54,8 @@ class IMAPConnection(Connection):
 
         if status != 'OK':
             raise RuntimeError('connect() failed')
+
+        _LOG.debug('%s: capabilities: %s', self, self._link.capabilities)
 
     def is_alive(self) -> bool:
         """
@@ -127,7 +131,6 @@ class IMAPConnection(Connection):
 
         return folder_names
 
-    '''
     def create_folder(self, folder: str) -> None:
 
         raise NotImplementedError()
@@ -135,7 +138,6 @@ class IMAPConnection(Connection):
     def delete_folder(self, folder: str) -> None:
 
         raise NotImplementedError()
-    '''
 
     def open_folder(self, folder: t.Optional[str]=None) -> None:
         """
