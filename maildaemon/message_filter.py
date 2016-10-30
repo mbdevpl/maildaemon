@@ -36,8 +36,11 @@ on its argument.
 
 ACTIONS = {
     'mark': lambda message, imap_daemon, flag: imap_daemon.set_flag(message, flag),
-    #'move_to': lambda message, imap_daemon, folder: imap_daemon.copy,
-    'copy_to': lambda message, imap_daemon, folder: imap_daemon.copy_to(message, folder)
+    'move': lambda message, imap_daemon, folder: imap_daemon.move_message(message, folder),
+    'copy': lambda message, imap_daemon, folder: imap_daemon.copy_message(message, folder),
+    'delete': None,
+    'reply': None,
+    'forward': lambda message, smtp_daemon, address:  smtp_daemon.forward_message(message, address)
     }
 """
 Define a mapping: str -> t.Callable[[Message], None].

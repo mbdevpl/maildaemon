@@ -45,3 +45,8 @@
   port = 587
   login = abcd@gmail.com
   password = abcdefgh
+
+[filter: facebook-notification]
+  connections = gmail-imap
+  condition = from_address:~>@facebookmail.com and from_address:~<notification
+  actions = mark:read
