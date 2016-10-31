@@ -18,6 +18,13 @@ install:
   - ls -1tr dist/*.whl | tail -n 1 | xargs pip install
   - pip uninstall maildaemon --yes
 
+before_script:
+  - netstat -tuln
+  - netstat -tuln | grep 143
+  - netstat -tuln | grep 993
+  - netstat -tuln | grep 110
+  - netstat -tuln | grep 995
+
 script:
   - python -m unittest discover
 
