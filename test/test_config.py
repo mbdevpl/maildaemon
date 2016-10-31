@@ -1,5 +1,6 @@
 
 import ast
+import os
 import unittest
 
 from maildaemon.config import load_config
@@ -40,3 +41,42 @@ class Test(unittest.TestCase):
         self.assertIn('port', section, msg=cfg)
         self.assertIn('login', section, msg=cfg)
         self.assertIn('password', section, msg=cfg)
+
+    def test_config_missing_protocol(self):
+
+        config_filename = '.maildaemon.config.tmp'
+
+        with open(config_filename, 'w') as f:
+            print('''[connection: missing-protocol]\n  domain = example.com''', file=f)
+
+        with self.assertRaises(RuntimeError):
+            cfg = load_config(config_filename)
+            self.assertIsNone(cfg, msg=cfg)
+
+        os.remove(config_filename)
+
+    def test_config_missing_domain(self):
+
+        config_filename = '.maildaemon.config.tmp'
+
+        with open(config_filename, 'w') as f:
+            print('''[connection: missing-domain]\n  protocol = IMAP''', file=f)
+
+        with self.assertRaises(RuntimeError):
+            cfg = load_config(config_filename)
+            self.assertIsNone(cfg, msg=cfg)
+
+        os.remove(config_filename)
+
+    def test_config_missing_filter_action(self):
+
+        config_filename = '.maildaemon.config.tmp'
+
+        with open(config_filename, 'w') as f:
+            print('''[filter: empty]''', file=f)
+
+        with self.assertRaises(RuntimeError):
+            cfg = load_config(config_filename)
+            self.assertIsNone(cfg, msg=cfg)
+
+        os.remove(config_filename)
