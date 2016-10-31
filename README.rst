@@ -3,6 +3,17 @@
 maildaemon
 ==========
 
+.. image:: https://img.shields.io/pypi/v/maildaemon.svg
+    :target: https://pypi.python.org/pypi/maildaemon
+    :alt: package version from PyPI
+
+.. image:: https://travis-ci.org/mbdevpl/maildaemon.svg?branch=master
+    :target: https://travis-ci.org/mbdevpl/maildaemon
+    :alt: build status from Travis CI
+
+.. image:: https://img.shields.io/pypi/l/maildaemon.svg
+    :alt: license
+
 .. role:: bash(code)
     :language: bash
 
