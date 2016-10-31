@@ -26,3 +26,6 @@ after_success:
   - python -m coverage run --branch --include="maildaemon/*","test/*" -m unittest discover --verbose
   - python -m coverage report --show-missing
   - coveralls
+
+after_script:
+  - sudo stop dovecot
