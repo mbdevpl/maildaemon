@@ -8,9 +8,6 @@ before_install:
   - pip install coveralls
   - python setup.py sdist
   - python setup.py bdist_wheel
-  - cp .maildaemon.config{.sample,}
-  - git clone https://github.com/tedious/DovecotTesting ../DovecotTesting
-  - bash ../DovecotTesting/SetupEnvironment.sh
 
 install:
   - ls -1tr dist/*tar.gz | tail -n 1 | xargs pip install
@@ -19,6 +16,8 @@ install:
   - pip uninstall maildaemon --yes
 
 before_script:
+  - git clone https://github.com/tedious/DovecotTesting ../DovecotTesting
+  - bash ../DovecotTesting/SetupEnvironment.sh
   - netstat -tuln
   - netstat -tuln | grep 143
   - netstat -tuln | grep 993
@@ -26,6 +25,7 @@ before_script:
   - netstat -tuln | grep 995
 
 script:
+  - cp .maildaemon.config{.sample,}
   - python -m unittest discover
 
 after_success:
