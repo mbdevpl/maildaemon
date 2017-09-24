@@ -1,11 +1,24 @@
-/.maildaemon.config
+# Eclipse
+/.settings
+/.*project
 
-# temporary files
+# Jupyter Notebook
+/.ipynb_checkpoints
+*-checkpoint.ipynb
+
+# Python
 /build
 /dist
-/.coverage
+/.cache
 __pycache__
-*-checkpoint.ipynb
 *.egg
 *.egg-info
 *.pyc
+
+# Python coverage
+/htmlcov
+/.coverage
+
+# other
+/.maildaemon.config
+/examples.py
