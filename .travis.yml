@@ -6,6 +6,7 @@ python:
 before_install:
   - pip install -r test_requirements.txt
   - pip install coveralls
+  - pip install -U pip
   - python setup.py sdist
   - python setup.py bdist_wheel
 
@@ -27,13 +28,12 @@ before_script:
 
 script:
   - cp .maildaemon.config{.sample,}
-  - python -m unittest discover
+  - python -m coverage run --branch --source . -m unittest discover --verbose
 
 after_success:
-  - python -m pylint --output-format=colorized --unsafe-load-any-extension=y maildaemon test || true
-  - python -m coverage run --branch --include="maildaemon/*","test/*" -m unittest discover --verbose
   - python -m coverage report --show-missing
   - coveralls
+  - python -m pylint --load-plugins=pylint.extensions.mccabe --docstring-min-length 5 --no-docstring-rgx "^(test)?_|.*Tests$" --unsafe-load-any-extension y --output-format colorized  --reports y $(find . -name "*.py")
 
 after_script:
   - sudo stop dovecot
