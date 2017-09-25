@@ -16,11 +16,16 @@ maildaemon
     :target: https://travis-ci.org/mbdevpl/maildaemon
     :alt: build status from Travis CI
 
+.. image:: https://api.codacy.com/project/badge/Grade/b35bf4a73a724854b0ba1cef4385c6f7
+    :target: https://www.codacy.com/app/mbdevpl/maildaemon
+    :alt: grade from Codacy
+
 .. image:: https://codecov.io/gh/mbdevpl/maildaemon/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/mbdevpl/maildaemon
     :alt: test coverage from Codecov
 
 .. image:: https://img.shields.io/pypi/l/maildaemon.svg
+    :target: https://github.com/mbdevpl/maildaemon/blob/master/NOTICE
     :alt: license
 
 Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
