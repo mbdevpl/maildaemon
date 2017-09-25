@@ -16,9 +16,9 @@ maildaemon
     :target: https://travis-ci.org/mbdevpl/maildaemon
     :alt: build status from Travis CI
 
-.. image:: https://coveralls.io/repos/github/mbdevpl/typed-astunparse/badge.svg?branch=master
-    :target: https://coveralls.io/github/mbdevpl/typed-astunparse?branch=master
-    :alt: test coverage from Coveralls
+.. image:: https://codecov.io/gh/mbdevpl/maildaemon/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/mbdevpl/maildaemon
+    :alt: test coverage from Codecov
 
 .. image:: https://img.shields.io/pypi/l/maildaemon.svg
     :alt: license
