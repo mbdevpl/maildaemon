@@ -7,7 +7,7 @@ import logging
 
 import daemon
 
-from ._version import version
+from ._version import VERSION as version
 from .config import DEFAULT_CONFIG_PATH, load_config
 from .connection_group import ConnectionGroup
 from .message_filter import MessageFilter

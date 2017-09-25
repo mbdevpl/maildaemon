@@ -1,4 +1,4 @@
-coverage
-pylint
-setuptools
+pip >= 9.0
+setuptools >= 20.5
+wheel
 -rrequirements.txt
