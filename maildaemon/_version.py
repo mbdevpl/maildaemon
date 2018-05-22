@@ -1,3 +1,5 @@
 """Version of maildaemon package."""
 
-VERSION = '0.1.0.dev1'
+from version_query import predict_version_str
+
+VERSION = predict_version_str()
