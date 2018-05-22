@@ -1,10 +1,9 @@
-# Eclipse
-/.settings
-/.*project
-
 # Jupyter Notebook
 /.ipynb_checkpoints
 *-checkpoint.ipynb
+
+# macOS
+.DS_Store
 
 # Python
 /build
@@ -17,8 +16,8 @@ __pycache__
 
 # Python coverage
 /htmlcov
+/coverage.xml
 /.coverage
 
 # other
 /.maildaemon.config
-/examples.py

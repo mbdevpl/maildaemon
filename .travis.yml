@@ -1,23 +1,21 @@
-dist: precise
 sudo: required
 language: python
 python:
   - "3.5"
   - "3.6"
+  - "3.7-dev"
+matrix:
+  allow_failures:
+    - python: "3.7-dev"
 
 install:
   - pip install -U pip
   - pip install -U -r dev_requirements.txt
 
 before_script:
-  - git clone https://github.com/tedious/DovecotTesting ../DovecotTesting
+  - git clone https://github.com/mbdevpl/DovecotTesting ../DovecotTesting
   - bash ../DovecotTesting/SetupEnvironment.sh
-  - sleep 15
-  - netstat -tuln
-  - netstat -tuln | grep 143
-  - netstat -tuln | grep 993
-  - netstat -tuln | grep 110
-  - netstat -tuln | grep 995
+  - bash ../DovecotTesting/VerifyEnvironment.sh
 
 script:
   - cp .maildaemon.config{.sample,}
