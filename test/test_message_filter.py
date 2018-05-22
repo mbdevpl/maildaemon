@@ -1,4 +1,5 @@
 
+import typing as t
 import unittest
 
 from maildaemon.config import load_config
@@ -9,6 +10,16 @@ from maildaemon.message_filter import MessageFilter
 class Tests(unittest.TestCase):
 
     config = load_config()
+
+    def test_construct(self):
+        def func1(arg: str):
+            return True
+        def func2(arg: t.Any):
+            return
+        conn = None  # type: Connection
+        connections = [conn]
+        msg_filter = MessageFilter(connections, [[('aa', func1)]], [func2])
+        self.assertIsNotNone(msg_filter)
 
     @unittest.skip('temporary')
     def test_apply(self):
