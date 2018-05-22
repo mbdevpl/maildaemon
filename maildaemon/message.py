@@ -121,12 +121,15 @@ class Message:
         _parts = msg.get_payload() if msg.is_multipart() else [msg]
         for part in _parts:
             content_type = part.get_content_type()
-            _LOG.error('%s', content_type)
+            if content_type not in {'text/plain', 'text/html'}:
+                _LOG.info('treating message part with type %s as attachment', content_type)
+                m.attachments.append(part)
+                continue
             # text = recode_contents(part)
             charset = part.get_content_charset()
             if not charset:
                 _LOG.error('no content charset in a message {} in part {}'
-                           .format(m.str_headers_compact(), part))
+                           .format(m.str_headers_compact(), part[:128]))
                 # raise ValueError('no content charset in {}'.format(raw_part))
                 # charset = 'utf-8'
                 m.attachments.append(part)
