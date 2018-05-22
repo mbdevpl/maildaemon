@@ -120,7 +120,15 @@ class Message:
 
         _parts = msg.get_payload() if msg.is_multipart() else [msg]
         for part in _parts:
-            text = recode_contents(part)
+            # text = recode_contents(part)
+            charset = part.get_content_charset()
+            if not charset:
+                _LOG.error('no content charset in a message {} in part {}'
+                           .format(m.str_headers_compact(), part))
+                # raise ValueError('no content charset in {}'.format(raw_part))
+                charset = 'utf-8'
+            text = part.get_payload(decode=True).decode(charset)
+
             # if text.startswith('<'):
             #    continue
             m.contents.append(text)
