@@ -87,39 +87,6 @@ Copyright 2016 Mateusz Bysiek  http://mbdev.pl/
 
     parser.version = version
 
-    """
-    parser.add_argument(
-        'command', default=None, type=str, choices=[n for _, n, __ in commands],
-        help='''a command that can be one of: {}'''
-        .format('; '.join(['"{}" - {}'.format(n, d) for _, n, d in commands]))
-        )
-
-    parser.add_argument(
-        'path', nargs='+', default=None, type=str,
-        help='''path(s) to file(s) or folder(s) to be processed; if "--from-language" is not given,
-        all files found in given path(s) that can be processed will be processed;
-        if "--from-language" is given, only source files that are in given language will be
-        processed''')
-
-    parser.add_argument(
-        '--recursive', '-r', action='store_true', default=False, required=False,
-        help='''if folder path is encountered, scan it recursively''')
-
-    parser.add_argument(
-        '--output-path', '--out', '-o', action='append', default=None, type=str, required=False,
-        help='''path to output file or folder''')
-
-    parser.add_argument(
-        '--from-language', '--from', default=None, type=str, choices=langs.keys(), required=False,
-        help='''programming language of source file(s)''')
-    #, case-insensitive prefix matching resolves
-    #    given value to the first matching language
-
-    parser.add_argument(
-        '--to-language', '--to', default=None, type=str, choices=langs.keys(), required=False,
-        help='''programming language of target file(s), prefix matching is used here as well''')
-    """
-
     parser.add_argument(
         '--daemon', '-d', action='store_true', default=False, required=False,
         help='''run as daemon''')
@@ -143,9 +110,9 @@ Copyright 2016 Mateusz Bysiek  http://mbdev.pl/
     return parser.parse_args(args)
 
 
-def main():
+def main(args=None):
     """Command-line interface of maildaemon."""
-    args = parse_args()
+    args = parse_args(args)
 
     if args.verbose:
         logging.getLogger().setLevel(logging.INFO)
