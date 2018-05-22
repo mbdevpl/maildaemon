@@ -1,5 +1,6 @@
 
 import logging
+import os
 import time
 import unittest
 
@@ -8,7 +9,10 @@ from maildaemon.imap_connection import IMAPConnection
 
 _LOG = logging.getLogger(__name__)
 
-class Test(unittest.TestCase):
+
+@unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
+                     'skipping tests that require server connection')
+class Tests(unittest.TestCase):
 
     config = load_config()
 
@@ -22,12 +26,12 @@ class Test(unittest.TestCase):
                 c.open_folder()
                 _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
                 for env, msg in _:
-                    #print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
+                    # print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
                     self.assertGreater(len(env), 0, msg=_)
                     self.assertIsNone(msg, msg=_)
                 _ = c.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
                 for env, msg in _:
-                    #print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
+                    # print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
                     self.assertGreater(len(env), 0, msg=_)
                     self.assertGreater(len(msg), 0, msg=_)
                 c.close_folder()
@@ -65,4 +69,4 @@ class Test(unittest.TestCase):
         _LOG.debug('finished sleeping')
 
         self.assertFalse(c.is_alive())
-        #c.disconnect()
+        # c.disconnect()

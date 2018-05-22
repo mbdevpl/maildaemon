@@ -30,23 +30,15 @@
   login = testuser
   password = applesauce
 
-[connection: gmail-imap]
-  protocol = IMAP
-  domain = imap.gmail.com
-  ssl = True
-  port = 993
-  login = abcd@gmail.com
-  password = abcdefgh
-
-[connection: gmail-smtp]
+[connection: test-smtp]
   protocol = SMTP
-  domain = smtp.gmail.com
+  domain = 127.0.0.1
   ssl = True
   port = 587
-  login = abcd@gmail.com
-  password = abcdefgh
+  login = testuser
+  password = applesauce
 
 [filter: facebook-notification]
-  connections = gmail-imap
+  connections = test-imap
   condition = from_address:~>@facebookmail.com and from_address:~<notification
   actions = mark:read

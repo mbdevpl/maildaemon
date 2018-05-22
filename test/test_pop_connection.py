@@ -1,10 +1,14 @@
 
+import os
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.pop_connection import POPConnection
 
-class Test(unittest.TestCase):
+
+@unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
+                     'skipping tests that require server connection')
+class Tests(unittest.TestCase):
 
     config = load_config()
 

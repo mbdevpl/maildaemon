@@ -20,7 +20,7 @@ before_script:
 
 script:
   - cp .maildaemon.config{.sample,}
-  - TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest discover --verbose
+  - TEST_COMM=1 TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest discover --verbose
 
 after_success:
   - python -m coverage report --show-missing

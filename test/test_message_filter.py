@@ -5,7 +5,8 @@ from maildaemon.config import load_config
 from maildaemon.imap_daemon import IMAPDaemon
 from maildaemon.message_filter import MessageFilter
 
-class Test(unittest.TestCase):
+
+class Tests(unittest.TestCase):
 
     config = load_config()
 

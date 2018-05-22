@@ -5,12 +5,13 @@ import unittest
 
 from maildaemon.config import load_config
 
-class Test(unittest.TestCase):
+
+class Tests(unittest.TestCase):
 
     def test_methodology(self):
 
-        #self.assertTrue(bool('True')) # correct by accident
-        #self.assertFalse(bool('False')) # wrong
+        # self.assertTrue(bool('True')) # correct by accident
+        # self.assertFalse(bool('False')) # wrong
         self.assertTrue(ast.literal_eval('True'))
         self.assertFalse(ast.literal_eval('False'))
 
@@ -27,7 +28,7 @@ class Test(unittest.TestCase):
         self.assertGreater(len(cfg['connections']), 0, msg=cfg)
 
         self.assertIn('test-imap', cfg['connections'], msg=cfg)
-        #self.assertIn('gmail-smtp', cfg['connections'], msg=cfg)
+        # self.assertIn('gmail-smtp', cfg['connections'], msg=cfg)
 
     def test_load_config_completeness(self):
 
