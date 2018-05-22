@@ -55,6 +55,7 @@ You can also build your own version:
     cd maildaemon
     cp .maildaemon.config{.sample,}
     nano .maildaemon.config # make sure that connections parameters are valid
+    pip3 install -U -r test_requirements.txt
     python3 -m unittest discover # make sure the tests pass
     python3 setup.py bdist_wheel
     ls -1tr dist/*.whl | tail -n 1 | xargs pip3 install
