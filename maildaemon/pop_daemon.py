@@ -9,15 +9,16 @@ from .pop_connection import POPConnection
 
 _LOG = logging.getLogger(__name__)
 
+
 class POPDaemon(Daemon, POPConnection):
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         Daemon.__init__(self)
         POPConnection.__init__(self, domain, ssl, port)
 
-        self.folders = ['INBOX'] # type: t.List[str]
-        self.message_ids = {'INBOX': []} # type: t.Mapping[str, t.List[int]]
-        self.messages = {} # type: t.Mapping[t.Tuple[str, int], Message]
+        self.folders = ['INBOX']  # type: t.List[str]
+        self.message_ids = {'INBOX': []}  # type: t.Mapping[str, t.List[int]]
+        self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
 
     def retrieve_messages(
             self, message_ids: t.List[int]) -> t.List[Message]:
@@ -56,8 +57,8 @@ class POPDaemon(Daemon, POPConnection):
                 _LOG.warning('%s: message #%i was deleted', self, message_id)
                 self.message_ids['INBOX'].remove(message_id)
                 del self.messages['INBOX', message_id]
-                #try:
-                #except KeyError:
+                # try:
+                # except KeyError:
                 #    _LOG.exception('%s: deleted a non-existing message "%i"', self, message_id)
 
         for message_id in message_ids:

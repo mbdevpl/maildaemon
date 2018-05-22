@@ -3,22 +3,21 @@ import logging
 import poplib
 import typing as t
 
-#from .message import Message
+# from .message import Message
 from .connection import Connection
 
 _LOG = logging.getLogger(__name__)
 
 TIMEOUT = 10
 
+
 class POPConnection(Connection):
-    """
-    For handling POP connections.
-    """
+    """For handling POP connections."""
 
     ports = [110]
     ssl_ports = [995]
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         super().__init__(domain, ssl, port)
 
         if self.ssl:

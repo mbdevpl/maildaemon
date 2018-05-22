@@ -10,15 +10,14 @@ _LOG = logging.getLogger(__name__)
 
 TIMEOUT = 10
 
+
 class SMTPConnection(Connection):
-    """
-    For handling SMTP connections.
-    """
+    """For handling SMTP connections."""
 
     ports = [25, 465, 587]
     ssl_ports = [465, 587]
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         super().__init__(domain, ssl, port)
 
         if self.ssl:
@@ -96,4 +95,3 @@ class SMTPConnection(Connection):
 
         if status not in range(200, 300):
             raise RuntimeError('disconnect() failed')
-

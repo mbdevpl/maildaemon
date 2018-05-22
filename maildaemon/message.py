@@ -5,18 +5,21 @@ import email.message
 import logging
 
 import dateutil.parser
-#import pytz
+# import pytz
 
-#from .server import Server
-#from .smtp_server import SMTPServer
+# from .server import Server
+# from .smtp_server import SMTPServer
 
 _LOG = logging.getLogger(__name__)
+
 
 def recode_header(raw_data) -> str:
     return email.header.make_header(email.header.decode_header(raw_data))
 
+
 def is_name_and_address(text) -> bool:
     return '<' in text and '>' in text
+
 
 def split_name_and_address(text) -> tuple:
     if is_name_and_address(text):
@@ -26,6 +29,7 @@ def split_name_and_address(text) -> tuple:
         return text[begin + 1:end], text[:begin]
     else:
         return text, None
+
 
 def recode_timezone_info(dt: datetime.datetime):
 
@@ -44,58 +48,59 @@ def recode_timezone_info(dt: datetime.datetime):
 
     return '{} (UTC{}{})'.format(name, offset, dst)
 
+
 def recode_contents(raw_part) -> str:
     if not raw_part.get_content_charset():
         raise ValueError('no content charset')
     return raw_part.get_payload(decode=True).decode(raw_part.get_content_charset())
 
+
 def print_message(msg: email.message.EmailMessage) -> None:
     raise RuntimeError('deprecated')
-    #msg.get_charset()
-    #msg.get_content_charset()
-    #msg.as_string()
-    #msg.items()
+    # msg.get_charset()
+    # msg.get_content_charset()
+    # msg.as_string()
+    # msg.items()
     parts = []
     if msg.is_multipart():
         parts = msg.get_payload()
         print('multipart, {} parts'.format(len(parts)))
-        #print(msg.get_charsets())
+        # print(msg.get_charsets())
     else:
         parts = [msg]
     print('From:    """{}"""'.format(recode_header(msg['From'])))
     print('To:      """{}"""'.format(recode_header(msg['To'])))
     print('Subject: """{}"""'.format(recode_header(msg['Subject'])))
-    #print('msg['Reply-To']
+    # print('msg['Reply-To']
     print(msg.keys())
     for part in parts:
         print(part.keys())
-        #print(part.get_charset())
+        # print(part.get_charset())
         print(80*'=')
         print(recode_contents(part))
     return
 
+
 class Message:
 
     @classmethod
-    def from_email_message(cls, msg: email.message.EmailMessage, server=None, folder=None, msg_id=None):
+    def from_email_message(cls, msg: email.message.EmailMessage, server: 'Server' = None,
+                           folder: str = None, msg_id: int = None):
 
-        m = cls()
-        m._email_message = msg
-        m._origin_server = server
-        m._origin_folder = folder
-        m._origin_id = msg_id
+        m = cls(msg, server, folder, msg_id)
 
         for key, value in msg.items():
             if key == 'From':
                 m.from_address, m.from_name = split_name_and_address(str(recode_header(value)))
             elif key == 'Reply-To':
-                m.reply_to_address, m.reply_to_name = split_name_and_address(str(recode_header(value)))
+                m.reply_to_address, m.reply_to_name = split_name_and_address(
+                    str(recode_header(value)))
             elif key == 'To':
                 m.to_address, m.to_name = split_name_and_address(str(recode_header(value)))
             elif key == 'Subject':
                 m.subject = recode_header(value)
             elif key == 'Date':
-                _datetime = dateutil.parser.parse(value) # type: datetime.datetime
+                _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
                 m.datetime = _datetime
                 m.date = _datetime.date()
                 m.time = _datetime.time()
@@ -116,17 +121,17 @@ class Message:
         _parts = msg.get_payload() if msg.is_multipart() else [msg]
         for part in _parts:
             text = recode_contents(part)
-            #if text.startswith('<'):
+            # if text.startswith('<'):
             #    continue
             m.contents.append(text)
         return m
 
-    def __init__(self):
+    def __init__(self, msg=None, server=None, folder=None, msg_id=None):
 
-        self._email_message = None # type: email.message.EmailMessage
-        self._origin_server = None # type: Server
-        self._origin_folder = None # type: str
-        self._origin_id = None # type: int
+        self._email_message = msg  # type: email.message.EmailMessage
+        self._origin_server = server  # type: Server
+        self._origin_folder = folder  # type: str
+        self._origin_id = msg_id  # type: int
 
         self.from_address = None
         self.from_name = None
@@ -156,11 +161,11 @@ class Message:
             if folder == self._origin_folder:
                 _LOG.debug('move_to() destination same as origin, nothing to do')
             _LOG.error('move_to() not implemented moving within same server')
-            #raise NotImplementedError()
+            # raise NotImplementedError()
 
         else:
             _LOG.error('move_to() not implemented moving between servers')
-            #raise NotImplementedError()
+            # raise NotImplementedError()
 
     def copy_to(self, server: 'Server', folder: str) -> None:
 
@@ -168,7 +173,7 @@ class Message:
 
     def send_via(self, server: 'Server') -> None:
 
-        server.send_message(self)
+        server.send_message(self._email_message)
 
     def str_headers(self):
         return '\n'.join([
@@ -184,14 +189,14 @@ class Message:
             'Timezone: {}'.format(self.timezone),
             'Locally:  {}'.format(self.local_date),
             '          {}'.format(self.local_time),
-            #'',
-            #'  Received: {}'.format(self.received),
-            #'  Return-Path: {}'.format(self.return_path),
-            #'  Envelope-To: {}'.format(self.envelope_to),
-            #'  Message-Id: {}'.format(self.message_id),
-            #'  Content-Type: {}'.format(self.content_type),
-            #'Other headers:',
-            #'\n'.join(['  {}: {}'.format(k, v) for k, v in self.other_headers]),
+            # '',
+            # '  Received: {}'.format(self.received),
+            # '  Return-Path: {}'.format(self.return_path),
+            # '  Envelope-To: {}'.format(self.envelope_to),
+            # '  Message-Id: {}'.format(self.message_id),
+            # '  Content-Type: {}'.format(self.content_type),
+            # 'Other headers:',
+            # '\n'.join(['  {}: {}'.format(k, v) for k, v in self.other_headers]),
             ])
 
     def str_headers_compact(self):
@@ -213,7 +218,8 @@ class Message:
         return '\n'.join([
             self.str_headers(),
             '',
-            'Contents{}:'.format(' (multipart, {} parts)'.format(len(self.contents)) if len(self.contents) > 1 else ''),
+            'Contents{}:'.format(' (multipart, {} parts)'.format(len(self.contents))
+                                 if len(self.contents) > 1 else ''),
             80*'=',
             (80*'=' + '\n').join(self.contents),
             80*'=',
@@ -224,5 +230,3 @@ class Message:
 
     def __repr__(self):
         return self.str_headers_compact()
-
-

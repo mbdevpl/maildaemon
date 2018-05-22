@@ -12,15 +12,16 @@ from .imap_connection import IMAPConnection
 
 _LOG = logging.getLogger(__name__)
 
+
 class IMAPDaemon(Daemon, IMAPConnection):
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         Daemon.__init__(self)
         IMAPConnection.__init__(self, domain, ssl, port)
 
-        self.folders = [] # type: t.List[str]
-        self.message_ids = {} # type: t.Mapping[str, t.List[int]]
-        self.messages = {} # type: t.Mapping[t.Tuple[str, int], Message]
+        self.folders = []  # type: t.List[str]
+        self.message_ids = {}  # type: t.Mapping[str, t.List[int]]
+        self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
 
     def update_folders(self):
 
@@ -40,9 +41,8 @@ class IMAPDaemon(Daemon, IMAPConnection):
                 self.folders.append(folder)
 
     def retrieve_messages(
-            self, message_ids: t.List[int], folder: t.Optional[str]=None) -> t.List[Message]:
-        """
-        For each message identifier request BODY.PEEK[] message part and parse it to Message.
+            self, message_ids: t.List[int], folder: t.Optional[str] = None) -> t.List[Message]:
+        """For each message identifier request BODY.PEEK[] message part and parse it to Message.
 
         The BODY.PEEK[] is a functional equivalent of obsolete RFC822.PEEK,
         see https://www.ietf.org/rfc/rfc2062 for details.
@@ -64,10 +64,8 @@ class IMAPDaemon(Daemon, IMAPConnection):
 
         return messages
 
-    def retrieve_message(self, message_id: int, folder: t.Optional[str]=None) -> Message:
-
+    def retrieve_message(self, message_id: int, folder: t.Optional[str] = None) -> Message:
         messages = self.retrieve_messages([message_id], folder)
-
         return messages[0]
 
     def _update_messages_in(self, folder: str):
@@ -81,12 +79,14 @@ class IMAPDaemon(Daemon, IMAPConnection):
 
             for message_id in self.message_ids[folder]:
                 if message_id not in message_ids:
-                    _LOG.warning('%s: message #%i in folder "%s" was deleted', self, message_id, folder)
+                    _LOG.warning('%s: message #%i in folder "%s" was deleted',
+                                 self, message_id, folder)
                     self.message_ids[folder].remove(message_id)
                     del self.messages[folder, message_id]
-                    #try:
-                    #except KeyError:
-                    #    _LOG.exception('%s: deleted a non-existing message "%i" from folder "%s"', self, message_id, folder)
+                    # try:
+                    # except KeyError:
+                    #    LOG.exception('%s: deleted a non-existing message "%i" from folder "%s"',
+                    #                  self, message_id, folder)
 
             for message_id in message_ids:
                 if message_id not in self.message_ids[folder]:
@@ -99,7 +99,7 @@ class IMAPDaemon(Daemon, IMAPConnection):
             self.message_ids[folder] = message_ids
             new_message_ids = message_ids
 
-        if len(new_message_ids) == 0:
+        if not new_message_ids:
             return
 
         new_messages = self.retrieve_messages(new_message_ids, folder)
@@ -113,7 +113,6 @@ class IMAPDaemon(Daemon, IMAPConnection):
             self.messages[folder, new_message_id] = new_message
 
     def update(self):
-
         self.update_folders()
 
         for folder in self.folders:

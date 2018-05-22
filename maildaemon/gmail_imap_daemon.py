@@ -8,6 +8,7 @@ from .imap_daemon import IMAPDaemon
 
 _LOG = logging.getLogger(__name__)
 
+
 class GmailIMAPDaemon(IMAPDaemon):
 
     def connect_oauth(

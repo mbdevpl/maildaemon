@@ -15,11 +15,13 @@ from .daemon_group import DaemonGroup
 
 _LOG = logging.getLogger(__name__)
 
+
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
 
-def parse_args():
 
+def parse_args(args=None):
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         prog='maildaemon',
         description='''maildaemon: multi-server mail filtering daemon supporting IMAP, POP and SMTP.
@@ -138,10 +140,11 @@ Copyright 2016 Mateusz Bysiek  http://mbdev.pl/
 
     parser.add_argument('--version', action='version')
 
-    return parser.parse_args()
+    return parser.parse_args(args)
+
 
 def main():
-
+    """Command-line interface of maildaemon."""
     args = parse_args()
 
     if args.verbose:
@@ -167,6 +170,7 @@ def main():
             daemon_group.run()
     else:
         daemon_group.run()
+
 
 if __name__ == '__main__':
     main()

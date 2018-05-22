@@ -11,23 +11,22 @@ from .connection import Connection
 _LOG = logging.getLogger(__name__)
 
 CONDITION_OPERATORS = {
-    #'>': lambda arg: functools.partial(),
+    # '>': lambda arg: functools.partial(),
     '=': lambda arg: functools.partial(operator.eq, arg),
-    #'!=': lambda a, b: a != b,
+    # '!=': lambda a, b: a != b,
     '=~': lambda arg: re.compile(arg).fullmatch,
     '~<': lambda arg: functools.partialmethod(str.startswith, prefix=arg),
     '~': lambda arg: functools.partial(operator.contains, b=arg),
-    #'~!': lambda a, b: a not in b,
+    # '~!': lambda a, b: a not in b,
     '~~': lambda arg: re.compile(arg).find,
     '~>': lambda arg: lambda variable: variable.endswith(arg),
     }
-"""
-Define a mapping: str -> t.Callable[[str], t.Callable[[str], bool]].
+"""Define a mapping: str -> t.Callable[[str], t.Callable[[str], bool]].
 
 In such mapping:
 
  - key is a 1- or 2-character string representation of a predicate on string variable; and
- 
+
  - value is a 1-argument function that creates another 1-argument function (a said predicate).
 
 Every operator is meant to create and return one-argument function that applies a predicate
@@ -40,10 +39,8 @@ ACTIONS = {
     'copy': lambda message, imap_daemon, folder: imap_daemon.copy_message(message, folder),
     'delete': None,
     'reply': None,
-    'forward': lambda message, smtp_daemon, address:  smtp_daemon.forward_message(message, address)
-    }
-"""
-Define a mapping: str -> t.Callable[[Message], None].
+    'forward': lambda message, smtp_daemon, address: smtp_daemon.forward_message(message, address)}
+"""Define a mapping: str -> t.Callable[[Message], None].
 
 In such mapping:
 
@@ -56,11 +53,12 @@ Every action is meant to create and return one-argument function that performs a
 involving a and possibly other entities.
 """
 
+
 class MessageFilter:
 
     @classmethod
     def from_dict(
-            cls, data: dict, named_connections: t.Mapping[str, Connection]={}) -> 'MessageFilter':
+            cls, data: dict, named_connections: t.Mapping[str, Connection] = {}) -> 'MessageFilter':
 
         try:
             connection_names = data['connections']
@@ -124,9 +122,11 @@ class MessageFilter:
             try:
                 action = ACTIONS[operation]
             except KeyError as err:
-                _LOG.exception('action "%s" consists of invalid operation "%s"', action_string, operation)
+                _LOG.exception('action "%s" consists of invalid operation "%s"',
+                               action_string, operation)
                 raise RuntimeError('cannot construct the filter with invalid action')
-            _LOG.debug('parsed to operation %s, args: %s (mapped to action %s)', operation, args, action)
+            _LOG.debug('parsed to operation %s, args: %s (mapped to action %s)',
+                       operation, args, action)
             actions.append(action)
 
         return cls(connections, condition, actions)

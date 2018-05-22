@@ -1,12 +1,13 @@
 
 import logging
 
-#from .connection import Connection
+# from .connection import Connection
 from .imap_daemon import IMAPDaemon
 from .smtp_connection import SMTPConnection
 from .pop_daemon import POPDaemon
 
 _LOG = logging.getLogger(__name__)
+
 
 class ConnectionGroup:
 
@@ -23,14 +24,14 @@ class ConnectionGroup:
                     'POP': POPDaemon
                     }[data['protocol']]
             except KeyError:
-                #_LOG.exception('invalid protocol: "%s"', data['protocol'])
+                # _LOG.exception('invalid protocol: "%s"', data['protocol'])
                 continue
 
             try:
                 connection = connection_class.from_dict(data)
             except:
-                _LOG.exception(
-                    'failed to construct connection object for "%s" with parameters: %s', name, data)
+                _LOG.exception('failed to construct connection object for "%s" with parameters: %s',
+                               name, data)
                 continue
 
             connections.append(connection)
@@ -76,10 +77,7 @@ class ConnectionGroup:
         return all_alive
 
     def purge_dead(self) -> None:
-        """
-        Check connections one by one and remove dead ones.
-        """
-
+        """Check connections one by one and remove dead ones."""
         dead_connections = []
         for i, connection in enumerate(self._connections):
             if not connection.is_alive():

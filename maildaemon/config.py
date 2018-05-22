@@ -4,7 +4,8 @@ import configparser
 
 DEFAULT_CONFIG_PATH = '.maildaemon.config'
 
-def load_config(path: str=DEFAULT_CONFIG_PATH):
+
+def load_config(path: str = DEFAULT_CONFIG_PATH):
 
     config = configparser.ConfigParser()
 
@@ -69,7 +70,7 @@ def load_config(path: str=DEFAULT_CONFIG_PATH):
                     .format(filter_name)) from err
             filters[filter_name] = filter_
 
-    return  {
+    return {
         'connections': connections,
         'filters': filters
         }

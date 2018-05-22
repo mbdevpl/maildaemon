@@ -13,6 +13,7 @@ TIMEOUT = 10
 
 socket.setdefaulttimeout(TIMEOUT)
 
+
 class IMAPConnection(Connection):
     """
     For handling IMAP connections.
@@ -27,7 +28,7 @@ class IMAPConnection(Connection):
     ports = [143]
     ssl_ports = [993]
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         super().__init__(domain, ssl, port)
 
         if self.ssl:
@@ -69,10 +70,10 @@ class IMAPConnection(Connection):
                 '%s: noop() status: %s, response: %s', self, status, [r.decode() for r in response])
         except imaplib.IMAP4.error as err:
             _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
-            #raise RuntimeError('is_alive() failed') from err
+            # raise RuntimeError('is_alive() failed') from err
         except OSError as err:
             _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
-            #raise RuntimeError('is_alive() failed') from err
+            # raise RuntimeError('is_alive() failed') from err
 
         return status == 'OK'
 
@@ -90,9 +91,7 @@ class IMAPConnection(Connection):
     '''
 
     def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.List[str]]]:
-        """
-        Use imaplib.list() command.
-        """
+        """Use imaplib.list() command."""
 
         status = None
         try:
@@ -108,9 +107,9 @@ class IMAPConnection(Connection):
 
         folders_with_flags = []
         for folder in folders:
-            #end = folder.rfind('"')
-            #begin = folder.rfind('"', 1, end) + 1
-            #folders[i] = folder[begin:end]
+            # end = folder.rfind('"')
+            # begin = folder.rfind('"', 1, end) + 1
+            # folders[i] = folder[begin:end]
             *raw_flags, _, folder_name = shlex.split(folder)
             flag_str = raw_flags if isinstance(raw_flags, str) else ' '.join(raw_flags)
             flag_str = flag_str[1:-1]
@@ -132,16 +131,13 @@ class IMAPConnection(Connection):
         return folder_names
 
     def create_folder(self, folder: str) -> None:
-
         raise NotImplementedError()
 
     def delete_folder(self, folder: str) -> None:
-
         raise NotImplementedError()
 
-    def open_folder(self, folder: t.Optional[str]=None) -> None:
-        """
-        Open an IMAP folder.
+    def open_folder(self, folder: t.Optional[str] = None) -> None:
+        """Open an IMAP folder.
 
         :param folder: optional, opens default folder if none provided
 
@@ -169,10 +165,8 @@ class IMAPConnection(Connection):
 
         self._folder = folder
 
-    def retrieve_message_ids(self, folder: t.Optional[str]=None) -> t.List[int]:
-        """
-        Use imaplib.search() command.
-        """
+    def retrieve_message_ids(self, folder: t.Optional[str] = None) -> t.List[int]:
+        """Use imaplib.search() command."""
 
         if folder is None:
             folder = self._folder
@@ -198,9 +192,8 @@ class IMAPConnection(Connection):
 
     def retrieve_messages_parts(
             self, message_ids: t.List[int], parts: t.List[str],
-            folder: t.Optional[str]=None) -> t.List[t.Tuple[bytes, t.Optional[bytes]]]:
-        """
-        Retrieve message parts for requested list of messages.
+            folder: t.Optional[str] = None) -> t.List[t.Tuple[bytes, t.Optional[bytes]]]:
+        """Retrieve message parts for requested list of messages.
 
         :param message_ids: list of message identifiers
         :param parts: list of one or more of the following parts defined in the standard:
@@ -227,7 +220,7 @@ class IMAPConnection(Connection):
             _LOG.info(
                 '%s: fetch(%s, %s) status: %s, len(messages_data): %i',
                 self, message_ids, parts, status, len(messages_data))
-            #_LOG.debug('data: %s', data) # large output
+            # _LOG.debug('data: %s', data) # large output
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: fetch(%s, %s) failed', self, message_ids, parts)
             raise RuntimeError('retrieve_messages_parts() failed') from err
@@ -241,17 +234,17 @@ class IMAPConnection(Connection):
 
         if len(messages_data) > len(message_ids):
             assert len(messages_data) == 2 * len(message_ids)
-            for i in range(len(messages_data) -1, -1, -2):
-                messages_data[i-1] = (messages_data[i-1][0] + messages_data[i][0], messages_data[i-1][1])
+            for i in range(len(messages_data) - 1, -1, -2):
+                messages_data[i - 1] = (messages_data[i - 1][0] + messages_data[i][0],
+                                        messages_data[i - 1][1])
                 del messages_data[i]
 
         return messages_data
 
     def retrieve_message_parts(
             self, message_id: int, parts: t.List[str],
-            folder: t.Optional[str]=None) -> t.Tuple[bytes, t.Optional[bytes]]:
-        """
-        Retrieve message parts for requested message.
+            folder: t.Optional[str] = None) -> t.Tuple[bytes, t.Optional[bytes]]:
+        """Retrieve message parts for requested message.
 
         :param message_id: single message identifier
         :param parts: list of one or more of the following parts defined in the standard:
@@ -269,10 +262,9 @@ class IMAPConnection(Connection):
 
     def _alter_messages_flags(
             self, message_ids: t.Sequence[int], flags: t.Sequence[str],
-            alteration: t.Optional[bool]=True, silent: bool=False,
-            folder: t.Optional[str]=None) -> None:
-        """
-        Alter flags on messages.
+            alteration: t.Optional[bool] = True, silent: bool = False,
+            folder: t.Optional[str] = None) -> None:
+        """Alter flags on messages.
 
         :param message_ids: list of IDs of messages
         :param flags: list of strings of: 'Deleted', etc.
@@ -305,8 +297,8 @@ class IMAPConnection(Connection):
             self, message_ids, command, flags, status, response)
 
     def add_messages_flags(
-            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
-            folder: t.Optional[str]=None):
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool = False,
+            folder: t.Optional[str] = None):
         """
         Issue "+FLAGS" command.
         """
@@ -314,29 +306,21 @@ class IMAPConnection(Connection):
         self._alter_messages_flags(message_ids, flags, True, silent, folder)
 
     def remove_messages_flags(
-            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
-            folder: t.Optional[str]=None):
-        """
-        Issue "-FLAGS" command.
-        """
-
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool = False,
+            folder: t.Optional[str] = None):
+        """Issue "-FLAGS" command."""
         self._alter_messages_flags(message_ids, flags, False, silent, folder)
 
     def set_messages_flags(
-            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool=False,
-            folder: t.Optional[str]=None):
-        """
-        Issue "FLAGS" command.
-        """
-
+            self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool = False,
+            folder: t.Optional[str] = None):
+        """Issue "FLAGS" command."""
         self._alter_messages_flags(message_ids, flags, None, silent, folder)
 
     def copy_messages(
             self, message_ids: t.List[int], target_folder: str,
-            source_folder: t.Optional[str]=None) -> None:
-        """
-        Copy messages to a different folder within the same connection.
-        """
+            source_folder: t.Optional[str] = None) -> None:
+        """Copy messages to a different folder within the same connection."""
 
         if source_folder is None:
             source_folder = self._folder
@@ -364,23 +348,22 @@ class IMAPConnection(Connection):
 
     def copy_message(
             self, message_id: int, target_folder: str,
-            source_folder: t.Optional[str]=None) -> None:
+            source_folder: t.Optional[str] = None) -> None:
 
         self.copy_messages([message_id], target_folder, source_folder)
 
-    def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str]=None) -> None:
+    def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str] = None) -> None:
 
         self.add_messages_flags(message_ids, True, 'Deleted', folder)
 
-    def delete_message(self, message_id: int, folder: t.Optional[str]=None) -> None:
+    def delete_message(self, message_id: int, folder: t.Optional[str] = None) -> None:
 
         self.delete_messages([message_id], folder)
 
     def move_messages(
             self, message_ids: t.List[int], target_folder: str,
-            source_folder: t.Optional[str]=None) -> None:
-        """
-        Move messages from one folder to a different folder on the same connection.
+            source_folder: t.Optional[str] = None) -> None:
+        """Move messages from one folder to a different folder on the same connection.
 
         This method does not rely on MOVE command https://tools.ietf.org/html/rfc6851
         """
@@ -388,15 +371,12 @@ class IMAPConnection(Connection):
         self.copy_messages(message_ids, target_folder, source_folder)
         self.delete_messages(message_ids, source_folder)
 
-    def move_message(
-            self, message_id: int, target_folder: str, source_folder: t.Optional[str]=None) -> None:
-
+    def move_message(self, message_id: int, target_folder: str,
+                     source_folder: t.Optional[str] = None) -> None:
         self.move_messages([message_id], target_folder, source_folder)
 
     def close_folder(self) -> None:
-        """
-        Use imaplib.close() command.
-        """
+        """Use imaplib.close() command."""
 
         if self._folder is None:
             return
@@ -417,9 +397,7 @@ class IMAPConnection(Connection):
         self._folder = None
 
     def disconnect(self) -> None:
-        """
-        Use imaplib.logout() command.
-        """
+        """Use imaplib.logout() command."""
 
         self.close_folder()
 

@@ -11,9 +11,10 @@ from .message import Message
 from .daemon import Daemon
 from .smtp_connection import SMTPConnection
 
+
 class SMTPDaemon(Daemon, SMTPConnection):
 
-    def __init__(self, domain: str, ssl: bool=True, port: t.Optional[int]=None):
+    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         Daemon.__init__(self)
         SMTPConnection.__init__(self, domain, ssl, port)
 
@@ -29,11 +30,11 @@ class SMTPDaemon(Daemon, SMTPConnection):
             super().send_message(message)
             return
 
-        super().send_message(message._email_message)
+        message.send_via(self)
 
     def update(self):
 
-        if len(self._outbox) == 0:
+        if not self._outbox:
             return
 
         for message in self._outbox:

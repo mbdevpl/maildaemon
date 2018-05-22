@@ -1,4 +1,4 @@
 daemon
-python-dateutil
 oauth2
+python-dateutil
 version-query
