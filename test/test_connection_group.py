@@ -28,6 +28,5 @@ class Tests(unittest.TestCase):
         connections = ConnectionGroup.from_dict(conns)
         self.assertEqual(len(connections), 3)
         connections.connect_all()
+        connections.purge_dead()
         connections.disconnect_all()
-        connections.purge_dead()
-        connections.purge_dead()
