@@ -127,7 +127,7 @@ def main(args=None):
 
     filters = []
     for _, filter_data in config['filters'].items():
-        flt = MessageFilter.from_dict(filter_data, group.named_connections)
+        flt = MessageFilter.from_dict(filter_data, group.connections)
         filters.append(flt)
 
     daemon_group = DaemonGroup(group, filters)

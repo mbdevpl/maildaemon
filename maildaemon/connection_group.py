@@ -1,7 +1,10 @@
 
 import logging
+import typing as t
 
-# from .connection import Connection
+import ordered_set
+
+from .connection import Connection
 from .imap_daemon import IMAPDaemon
 from .smtp_connection import SMTPConnection
 from .pop_daemon import POPDaemon
@@ -9,92 +12,78 @@ from .pop_daemon import POPDaemon
 _LOG = logging.getLogger(__name__)
 
 
-class ConnectionGroup:
+class ConnectionGroup(t.Dict[str, Connection]):
+
+    """Group of connections."""
 
     @classmethod
     def from_dict(cls, data: dict) -> 'ConnectionGroup':
 
-        connections = []
-        names = []
-        for name, data in data.items():
+        connections = {}
+        for name, entry in data.items():
             try:
                 connection_class = {
                     'IMAP': IMAPDaemon,
                     'SMTP': SMTPConnection,
                     'POP': POPDaemon
-                    }[data['protocol']]
+                    }[entry['protocol']]
             except KeyError:
                 # _LOG.exception('invalid protocol: "%s"', data['protocol'])
                 continue
 
             try:
-                connection = connection_class.from_dict(data)
+                connection = connection_class.from_dict(entry)
             except:
                 _LOG.exception('failed to construct connection object for "%s" with parameters: %s',
-                               name, data)
+                               name, entry)
                 continue
 
-            connections.append(connection)
-            names.append(name)
+            connections[name] = connection
 
-        group = cls(*connections)
-        group._names = names
-
+        group = cls(**connections)
         return group
 
-    def __init__(self, *connections):
-
-        self._connections = []
-        for connection in connections:
-            self._connections.append(connection)
-
-        self._names = None
-        self._named_connections = None
+    def __init__(self, **connections):
+        super().__init__(**connections)
+        self._connections = {}
+        for name, connection in connections.items():
+            self._connections[name] = connection
 
     @property
-    def named_connections(self):
-
-        if self._named_connections is None:
-            self._named_connections = {k: v for k, v in zip(self._names, self._connections)}
-
-        return self._named_connections
+    def connections(self):
+        return self._connections
 
     def connect_all(self) -> None:
-
         _LOG.info('establishing %i connections...', len(self))
-
-        for connection in self._connections:
+        for _, connection in self._connections.items():
             connection.connect()
 
-    def all_alive(self) -> bool:
+    @property
+    def alive_connections(self) -> t.List[Connection]:
+        """List of connections that are alive at the moment."""
+        alive_connections = []
+        for name, connection in self._connections.items():
+            if connection.is_alive():
+                alive_connections.append(name)
+        return alive_connections
 
-        all_alive = True
-
-        for connection in self._connections:
-            is_alive = connection.is_alive()
-            all_alive = all_alive and is_alive
-
-        return all_alive
+    @property
+    def dead_connections(self):
+        return list(ordered_set.OrderedSet(self.connections)
+                    - ordered_set.OrderedSet(self.alive_connections))
 
     def purge_dead(self) -> None:
         """Check connections one by one and remove dead ones."""
-        dead_connections = []
-        for i, connection in enumerate(self._connections):
-            if not connection.is_alive():
-                dead_connections.append(i)
-                _LOG.info('lost connection with %s', connection)
+        for name in self.dead_connections:
+            _LOG.info('purging lost connection with %s', name)
+            del self._connections[name]
 
-        for i in reversed(dead_connections):
-            del self._connections[i]
-
-        if len(self._connections) == 0:
-            _LOG.warning('lost all connections')
+        if not self._connections:
+            _LOG.info('purged all connections')
 
     def disconnect_all(self) -> None:
-
         _LOG.info('ending %i connections...', len(self))
-
-        for connection in self._connections:
+        for _, connection in self._connections.items():
             connection.disconnect()
 
     def __len__(self):
