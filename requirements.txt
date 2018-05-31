@@ -1,4 +1,5 @@
 daemon
 oauth2
+ordered-set
 python-dateutil
 version-query
