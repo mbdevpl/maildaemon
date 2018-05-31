@@ -17,11 +17,9 @@ class Tests(unittest.TestCase):
     config = load_config()
 
     def test_retrieve_messages_parts(self):
-
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
                 c = IMAPConnection.from_dict(self.config['connections'][connection_name])
-
                 c.connect()
                 c.open_folder()
                 _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])

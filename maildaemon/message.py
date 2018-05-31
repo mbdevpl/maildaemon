@@ -27,8 +27,7 @@ def split_name_and_address(text) -> tuple:
         end = text.rfind('>')
         assert begin < end
         return text[begin + 1:end], text[:begin]
-    else:
-        return text, None
+    return text, None
 
 
 def recode_timezone_info(dt: datetime.datetime):
@@ -102,8 +101,6 @@ class Message:
             elif key == 'Date':
                 _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
                 m.datetime = _datetime
-                m.date = _datetime.date()
-                m.time = _datetime.time()
                 m.timezone = recode_timezone_info(_datetime)
             elif key == 'Received':
                 m.received.append(value)
@@ -155,8 +152,7 @@ class Message:
         self.to_address = None
         self.to_name = None
         self.subject = None
-        self.date = None
-        self.time = None
+        self.datetime = None
         self.timezone = None
         self.local_date = None
         self.local_time = None
@@ -170,6 +166,14 @@ class Message:
 
         self.contents = []
         self.attachments = []
+
+    @property
+    def date(self):
+        return self.datetime.date()
+
+    @property
+    def time(self):
+        return self.datetime.time()
 
     def move_to(self, server: 'Server', folder: str) -> None:
 

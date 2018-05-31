@@ -15,8 +15,8 @@ socket.setdefaulttimeout(TIMEOUT)
 
 
 class IMAPConnection(Connection):
-    """
-    For handling IMAP connections.
+
+    """For handling IMAP connections.
 
     According to imaplib.IMAP4 documentation: "All IMAP4rev1 commands are supported".
     IMAP version 4 revision 1: https://tools.ietf.org/html/rfc3501
@@ -39,9 +39,7 @@ class IMAPConnection(Connection):
         self._folder = None
 
     def connect(self) -> None:
-        """
-        Use imaplib.login() command.
-        """
+        """Use imaplib.login() command."""
 
         status = None
         try:
@@ -59,9 +57,7 @@ class IMAPConnection(Connection):
         _LOG.debug('%s: capabilities: %s', self, self._link.capabilities)
 
     def is_alive(self) -> bool:
-        """
-        Use imaplib.noop() command.
-        """
+        """Use imaplib.noop() command."""
 
         status = None
         try:

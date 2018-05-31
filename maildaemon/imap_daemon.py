@@ -1,6 +1,4 @@
-"""
-
-"""
+"""Daemon working with IMAP connections."""
 
 import email
 import logging
@@ -14,6 +12,8 @@ _LOG = logging.getLogger(__name__)
 
 
 class IMAPDaemon(Daemon, IMAPConnection):
+
+    """Daemon working with IMAP connections."""
 
     def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         Daemon.__init__(self)
