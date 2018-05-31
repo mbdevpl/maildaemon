@@ -33,5 +33,5 @@ class Tests(unittest.TestCase):
                 # import time; time.sleep(2)
                 c = IMAPDaemon.from_dict(self.config['connections'][connection_name])
                 c.connect()
-                # c.update()  # TODO: there's some cryptic error in msg id 12
+                # c.update()  # TODO: there's some cryptic error in msg id 12 in INBOX
                 c.disconnect()
