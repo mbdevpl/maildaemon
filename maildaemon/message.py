@@ -48,39 +48,9 @@ def recode_timezone_info(dt: datetime.datetime):
     return '{} (UTC{}{})'.format(name, offset, dst)
 
 
-def recode_contents(raw_part) -> str:
-    if not raw_part.get_content_charset():
-        raise ValueError('no content charset')
-    return raw_part.get_payload(decode=True).decode(raw_part.get_content_charset())
-
-
-def print_message(msg: email.message.EmailMessage) -> None:
-    raise RuntimeError('deprecated')
-    # msg.get_charset()
-    # msg.get_content_charset()
-    # msg.as_string()
-    # msg.items()
-    parts = []
-    if msg.is_multipart():
-        parts = msg.get_payload()
-        print('multipart, {} parts'.format(len(parts)))
-        # print(msg.get_charsets())
-    else:
-        parts = [msg]
-    print('From:    """{}"""'.format(recode_header(msg['From'])))
-    print('To:      """{}"""'.format(recode_header(msg['To'])))
-    print('Subject: """{}"""'.format(recode_header(msg['Subject'])))
-    # print('msg['Reply-To']
-    print(msg.keys())
-    for part in parts:
-        print(part.keys())
-        # print(part.get_charset())
-        print(80*'=')
-        print(recode_contents(part))
-    return
-
-
 class Message:
+
+    """An e-mail message."""
 
     @classmethod
     def from_email_message(cls, msg: email.message.EmailMessage, server: 'Server' = None,
@@ -122,13 +92,10 @@ class Message:
                 _LOG.info('treating message part with type %s as attachment', content_type)
                 m.attachments.append(part)
                 continue
-            # text = recode_contents(part)
             charset = part.get_content_charset()
             if not charset:
-                _LOG.error('no content charset in a message {} in part {}'
-                           .format(m.str_headers_compact(), part[:128]))
-                # raise ValueError('no content charset in {}'.format(raw_part))
-                # charset = 'utf-8'
+                _LOG.error('no content charset in a message %s in part %s',
+                           m.str_headers_compact(), part[:128])
                 m.attachments.append(part)
                 continue
             text = part.get_payload(decode=True).decode(charset)

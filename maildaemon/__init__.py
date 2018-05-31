@@ -17,7 +17,7 @@ logging.config.dictConfig({
             'class': 'logging.StreamHandler', 'formatter': 'brief', 'level': logging.NOTSET,
             'stream': 'ext://sys.stdout'}
         },
-    'root': {'level': logging.DEBUG, 'handlers': ['console']}
+    'root': {'level': logging.WARNING, 'handlers': ['console']}
     })
 
 from .config import load_config
