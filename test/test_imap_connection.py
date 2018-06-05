@@ -1,6 +1,7 @@
 
 import logging
 import os
+import pathlib
 import time
 import unittest
 
@@ -9,12 +10,15 @@ from maildaemon.imap_connection import IMAPConnection
 
 _LOG = logging.getLogger(__name__)
 
+_HERE = pathlib.Path(__file__).parent
+_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+
 
 @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                      'skipping tests that require server connection')
 class Tests(unittest.TestCase):
 
-    config = load_config()
+    config = load_config(_TEST_CONFIG_PATH)
 
     def test_retrieve_messages_parts(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:

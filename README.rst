@@ -5,6 +5,7 @@
     :language: python
 
 
+==========
 maildaemon
 ==========
 
@@ -31,11 +32,8 @@ maildaemon
 Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
 
 
-requirements
-------------
-
-This package is intended for Python 3.5 and above. It was tested on 64 bit Ubuntu,
-but it might work on other versions and systems too.
+user guide
+==========
 
 
 installation
@@ -47,18 +45,12 @@ For simplest installation use :bash:`pip`:
 
     pip3 install maildaemon
 
-You can also build your own version:
 
-.. code:: bash
+Python >= 3.5 is required, and required dependencies defined in `<requirements.txt>`_
+will be automatically installed too.
 
-    git clone https://github.com/mbdevpl/maildaemon
-    cd maildaemon
-    cp .maildaemon.config{.sample,}
-    nano .maildaemon.config # make sure that connections parameters are valid
-    pip3 install -U -r test_requirements.txt
-    python3 -m unittest discover # make sure the tests pass
-    python3 setup.py bdist_wheel
-    ls -1tr dist/*.whl | tail -n 1 | xargs pip3 install
+Maildaemon works based on a JSON configuration file. If it doesn't exist,
+detault one will be generated. An example is provided in `<test/maildaemon_test_config.json>`_
 
 
 supported protocols
@@ -76,16 +68,15 @@ Currently, the package has a very limited support for:
 filtering options
 -----------------
 
-?
-
 
 conditions
 ~~~~~~~~~~
 
-?
+Python expression.
 
 
 actions
 ~~~~~~~
 
-?
+Move, mark as read etc.
+

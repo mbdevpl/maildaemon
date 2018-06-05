@@ -1,29 +1,31 @@
 
 import email
 import os
+import pathlib
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
 from maildaemon.smtp_connection import SMTPConnection
 
+_HERE = pathlib.Path(__file__).parent
+_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+
 
 @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                      'skipping tests that require server connection')
 class Tests(unittest.TestCase):
 
-    config = load_config()
+    config = load_config(_TEST_CONFIG_PATH)
 
     @unittest.skip('temporary')
     def test_connect(self):
-
         s = SMTPConnection.from_dict(self.config['connections']['test-smtp'])
         s.connect()
         s.disconnect()
 
     @unittest.skip('temporary')
     def test_send_message(self):
-
         c = IMAPConnection.from_dict(self.config['connections']['test-imap'])
         c.connect()
         _, body = c.retrieve_message_parts(1, ['BODY.PEEK[]'])

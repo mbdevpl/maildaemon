@@ -56,10 +56,11 @@ involving a and possibly other entities.
 
 class MessageFilter:
 
-    @classmethod
-    def from_dict(
-            cls, data: dict, named_connections: t.Mapping[str, Connection] = {}) -> 'MessageFilter':
+    """For selective actions on messages."""
 
+    @classmethod
+    def from_dict(cls, data: dict,
+                  named_connections: t.Mapping[str, Connection] = {}) -> 'MessageFilter':
         try:
             connection_names = data['connections']
         except KeyError:
@@ -70,6 +71,9 @@ class MessageFilter:
             connection = named_connections[connection_name]
             connections.append(connection)
 
+        condition = eval('lambda from_address, subject: {}'.format(data['condition']))
+
+        """
         try:
             disjunction = data['condition']
         except KeyError:
@@ -109,6 +113,7 @@ class MessageFilter:
                 _LOG.debug(')')
         if len(disjunction) > 1:
             _LOG.debug(']')
+        """
 
         try:
             action_strings = data['actions']
@@ -135,13 +140,13 @@ class MessageFilter:
             self, connections: t.List[Connection],
             condition: t.List[t.List[t.Tuple[str, t.Callable[[str], bool]]]],
             actions: t.List[t.Callable[[t.Any], None]]):
-
         self._connections = connections
         self._condition = condition
         self._actions = actions
 
     def applies_to(self, message: Message) -> bool:
-
+        return self._condition(message.from_address, message.subject)
+        '''
         for conjunction in self._condition:
             conjunction_satisfied = True
             for arg, predicate in conjunction:
@@ -159,3 +164,4 @@ class MessageFilter:
                 return True
 
         return False
+        '''

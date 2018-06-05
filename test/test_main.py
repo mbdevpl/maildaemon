@@ -1,10 +1,15 @@
 
 import contextlib
 import os
+import pathlib
 import unittest
+import unittest.mock
 
 from maildaemon.__main__ import main
 from .test_setup import run_module
+
+_HERE = pathlib.Path(__file__).parent
+_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
 
 
 class Tests(unittest.TestCase):
@@ -12,14 +17,20 @@ class Tests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                          'test requires server connection')
     def test_no_args(self):
-        run_module('maildaemon')
+        import maildaemon.config
+        with unittest.mock.patch.object(maildaemon.config, 'DEFAULT_CONFIG_PATH',
+                                        new=_TEST_CONFIG_PATH):
+            run_module('maildaemon')
 
     @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                          'test requires server connection')
     def test_verbosity(self):
-        run_module('maildaemon', '--verbose')
-        run_module('maildaemon', '--quiet')
-        run_module('maildaemon', '--debug')
+        import maildaemon.config
+        with unittest.mock.patch.object(maildaemon.config, 'DEFAULT_CONFIG_PATH',
+                                        new=_TEST_CONFIG_PATH):
+            run_module('maildaemon', '--verbose')
+            run_module('maildaemon', '--quiet')
+            run_module('maildaemon', '--debug')
 
     def test_bad_run(self):
         with self.assertRaises(SystemExit):

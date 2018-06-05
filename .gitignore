@@ -18,6 +18,3 @@ __pycache__
 /htmlcov
 /coverage.xml
 /.coverage
-
-# other
-/.maildaemon.config

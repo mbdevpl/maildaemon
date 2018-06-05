@@ -32,7 +32,7 @@ Configuration is stored in "{}".
   maildaemon -h
   maildaemon -d
 
-Copyright 2016 Mateusz Bysiek  http://mbdev.pl/
+Copyright 2016-2018 Mateusz Bysiek  https://mbdevpl.github.io/
 ''',
         formatter_class=Formatter, allow_abbrev=True)
     """
@@ -121,7 +121,7 @@ def main(args=None):
     if args.quiet:
         logging.getLogger().setLevel(logging.CRITICAL)
 
-    config = load_config()
+    config = load_config(DEFAULT_CONFIG_PATH)
 
     group = ConnectionGroup.from_dict(config['connections'])
 
