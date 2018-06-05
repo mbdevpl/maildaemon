@@ -19,7 +19,6 @@ before_script:
   - bash ../DovecotTesting/VerifyEnvironment.sh
 
 script:
-  - cp .maildaemon.config{.sample,}
   - TEST_COMM=1 TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest discover --verbose
 
 after_success:

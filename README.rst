@@ -72,6 +72,7 @@ Configuration
 The configuration file has two sections:
 
 .. code:: json
+
     {
       "connections": { },
       "filters": { }
@@ -96,6 +97,7 @@ Connection parameters are:
 *   password -- a string of characters
 
 .. code:: json
+
     {
       "test-imap-ssl": {
         "protocol": "IMAP",
@@ -130,6 +132,7 @@ Filter parameters are:
 
 
 .. code:: json
+
     {
       "facebook-notification": {
         "connections": [
