@@ -184,3 +184,48 @@ Filter actions
     "mark:important" will mark a message as important. Effect may vary between clients.
     In Gmail web mail client this is visible as star, in Mac mail client as a red flag,
     in Evolution as "Important message".
+
+
+Testing locally
+===============
+
+Running IMAP and POP server in vagrant:
+
+.. code:: bash
+
+    git clone https://github.com/mbdevpl/DovecotTesting.git
+    cd DovecotTesting/vagrant
+    vagrant up --provision
+    sudo -E ssh -F ssh_config DovecotTesting -p $(vagrant port --guest 22)  # ssh password: "vagrant"
+
+Running SMTP server in docker:
+
+.. code:: bash
+
+    (sudo) docker pull gessnerfl/fake-smtp-server
+    (sudo) docker run -d --name fake-smtp -p 25:5025 -e "fakesmtp_authentication_username=testuser" -e "fakesmtp_authentication_password=applesauce" gessnerfl/fake-smtp-server
+
+Check if services are running:
+
+.. code:: bash
+
+    ./DovecotTesting/VerifyEnvironment.sh  # IMAP and POP
+    sudo docker ps  # SMTP
+
+Running tests:
+
+.. code:: bash
+
+    vagrant provision  # to reset IMAP/POP mailboxes after previous tests
+    TEST_COMM=1 python -m coverage run --branch --source . -m unittest discover --verbose
+
+The vagrant service has a built-in 30 min timeout, and will turn off after it.
+Running "vagrant provision" resets the countdown.
+If you miss the timeout, run "vagrant up --provision" and ssh again.
+
+Stop the services:
+
+.. code:: bash
+
+    vagrant down  # IMAP and POP
+    (sudo) docker container kill fake-smtp  # SMTP
