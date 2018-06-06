@@ -23,23 +23,23 @@ class Tests(unittest.TestCase):
     def test_retrieve_messages_parts(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
-                c = IMAPConnection.from_dict(self.config['connections'][connection_name])
-                c.connect()
-                c.open_folder()
-                _ = c.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
-                for env, msg in _:
+                connection = IMAPConnection.from_dict(self.config['connections'][connection_name])
+                connection.connect()
+                connection.open_folder()
+                msgs1 = connection.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
+                msgs2 = connection.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
+                connection.close_folder()
+                alive = connection.is_alive()
+                connection.disconnect()
+                for env, msg in msgs1:
                     # print('uid+envelope', len(env), len(msg) if isinstance(msg, bytes) else msg)
-                    self.assertGreater(len(env), 0, msg=_)
-                    self.assertIsNone(msg, msg=_)
-                _ = c.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
-                for env, msg in _:
+                    self.assertGreater(len(env), 0, msg=msgs1)
+                    self.assertIsNone(msg, msg=msgs1)
+                for env, msg in msgs2:
                     # print('body', len(env), len(msg) if isinstance(msg, bytes) else msg)
-                    self.assertGreater(len(env), 0, msg=_)
-                    self.assertGreater(len(msg), 0, msg=_)
-                c.close_folder()
-                alive = c.is_alive()
-                self.assertTrue(alive, msg=c)
-                c.disconnect()
+                    self.assertGreater(len(env), 0, msg=msgs2)
+                    self.assertGreater(len(msg), 0, msg=msgs2)
+                self.assertTrue(alive, msg=connection)
 
     def test_delete_message(self):
         connection = IMAPConnection.from_dict(self.config['connections']['test-imap-ssl'])
