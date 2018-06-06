@@ -20,6 +20,16 @@ class Tests(unittest.TestCase):
 
     config = load_config(_TEST_CONFIG_PATH)
 
+    def test_retrieve_folders(self):
+        for connection_name in ['test-imap', 'test-imap-ssl']:
+            with self.subTest(msg=connection_name):
+                connection = IMAPConnection.from_dict(self.config['connections'][connection_name])
+                connection.connect()
+                folders = connection.retrieve_folders()
+                connection.disconnect()
+                self.assertGreater(len(folders), 0, msg=connection)
+                self.assertIn('INBOX', folders, msg=connection)
+
     def test_retrieve_messages_parts(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
