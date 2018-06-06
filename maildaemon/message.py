@@ -92,12 +92,15 @@ class Message:
                 m.attachments.append(part)
                 continue
             charset = part.get_content_charset()
-            if not charset:
-                _LOG.error('no content charset in a message %s in part %s',
-                           m.str_headers_compact(), part[:128])
-                m.attachments.append(part)
-                continue
-            text = part.get_payload(decode=True).decode(charset)
+            if charset:
+                text = part.get_payload(decode=True).decode(charset)
+            else:
+                text = part.get_payload()
+                if text:
+                    _LOG.error('no content charset in a message %s in part %s',
+                               m.str_headers_compact(), part.as_bytes()[:128])
+                    m.attachments.append(part)
+                    continue
             m.contents.append(text)
         return m
 
