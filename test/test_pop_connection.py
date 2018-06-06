@@ -27,3 +27,11 @@ class Tests(unittest.TestCase):
                 connection.disconnect()
                 self.assertIsInstance(ids, list, msg=connection)
                 self.assertTrue(alive, msg=connection)
+
+    def test_retrieve_message_lines(self):
+        for connection_name in ['test-pop', 'test-pop-ssl']:
+            with self.subTest(msg=connection_name):
+                connection = POPConnection.from_dict(self.config['connections'][connection_name])
+                connection.connect()
+                lines = connection.retrieve_message_lines(1)
+                self.assertGreater(len(lines), 0, msg=connection)
