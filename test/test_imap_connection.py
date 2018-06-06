@@ -31,6 +31,18 @@ class Tests(unittest.TestCase):
                 self.assertGreater(len(folders), 0, msg=connection)
                 self.assertIn('INBOX', folders, msg=connection)
 
+    def test_retrieve_message_ids(self):
+        for connection_name in ['test-imap', 'test-imap-ssl']:
+            with self.subTest(msg=connection_name):
+                connection = IMAPConnection.from_dict(self.config['connections'][connection_name])
+                connection.connect()
+                connection.open_folder('INBOX')
+                ids = connection.retrieve_message_ids('INBOX')
+                connection.disconnect()
+                self.assertIsInstance(ids, list, msg=type(ids))
+                for id_ in ids:
+                    self.assertIsInstance(id_, int, msg=ids)
+
     def test_retrieve_messages_parts(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
