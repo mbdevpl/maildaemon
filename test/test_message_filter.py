@@ -1,5 +1,6 @@
 """Test filtering of messages."""
 
+import logging
 import pathlib
 import typing as t
 import unittest
@@ -8,6 +9,8 @@ from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
 from maildaemon.imap_daemon import IMAPDaemon
 from maildaemon.message_filter import MessageFilter
+
+_LOG = logging.getLogger(__name__)
 
 _HERE = pathlib.Path(__file__).parent
 _TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
@@ -34,17 +37,24 @@ class Tests(unittest.TestCase):
                                           {'test-imap': connection})
         self.assertIsNotNone(filter_)
 
-    @unittest.skip('temporary')
-    def test_apply(self):
+    def test_if_applies(self):
+        connection = IMAPDaemon.from_dict(self.config['connections']['test-imap'])
+        connection.connect()
+        msg = connection.retrieve_message(1)
+        connection.disconnect()
+        _LOG.debug('%s', msg.from_address)
+        _LOG.debug('%s', msg.subject)
 
-        c = IMAPDaemon.from_dict(self.config['connections']['gmail-imap'])
+        filter_ = MessageFilter.from_dict(self.config['filters']['facebook-notification'],
+                                          {'test-imap': connection})
+        result = filter_.applies_to(msg)
+        _LOG.debug('Does filter apply? %s', result)
+        self.assertIsInstance(result, bool, msg=(filter_, msg))
+        self.assertFalse(result)
 
-        c.connect()
-
-        msg = c.retrieve_message(1)
-
-        f = MessageFilter.from_dict(self.config['filters']['facebook'], {'gmail-imap': c})
-        result = f.applies_to(msg)
-        self.assertIsInstance(result, bool, msg=(f, msg))
-
-        c.disconnect()
+        filter_ = MessageFilter.from_dict(self.config['filters']['autoreply'],
+                                          {'test-imap': connection})
+        result = filter_.applies_to(msg)
+        _LOG.debug('Does filter apply? %s', result)
+        self.assertIsInstance(result, bool, msg=(filter_, msg))
+        self.assertTrue(result)

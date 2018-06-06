@@ -50,6 +50,15 @@
       "actions": [
         "mark:read"
       ]
+    },
+    "autoreply": {
+      "connections": [
+        "test-imap"
+      ],
+      "condition": "to_address == 'testuser@tedivm.com'",
+      "actions": [
+        "mark:read"
+      ]
     }
   }
 }

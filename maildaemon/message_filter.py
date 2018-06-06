@@ -53,6 +53,9 @@ Every action is meant to create and return one-argument function that performs a
 involving a and possibly other entities.
 """
 
+FILTER_CODE = 'lambda from_address, from_name, to_address, to_name, subject,' \
+    ' datetime, date, time: {}'
+
 
 class MessageFilter:
 
@@ -71,7 +74,7 @@ class MessageFilter:
             connection = named_connections[connection_name]
             connections.append(connection)
 
-        condition = eval('lambda from_address, subject: {}'.format(data['condition']))
+        condition = eval(FILTER_CODE.format(data['condition']))
 
         """
         try:
@@ -145,7 +148,9 @@ class MessageFilter:
         self._actions = actions
 
     def applies_to(self, message: Message) -> bool:
-        return self._condition(message.from_address, message.subject)
+        return self._condition(
+            message.from_address, message.from_name, message.to_address, message.to_name,
+            message.subject, message.datetime, message.date, message.time)
         '''
         for conjunction in self._condition:
             conjunction_satisfied = True
