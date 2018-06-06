@@ -59,7 +59,7 @@ class IMAPDaemon(Daemon, IMAPConnection):
                         '%s: message #%i in "%s" has defect: %s',
                         self, message_id, self._folder, defect)
 
-            message = Message.from_email_message(email_message)
+            message = Message.from_email_message(email_message, self, self._folder, message_id)
             messages.append(message)
 
         return messages

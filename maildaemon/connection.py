@@ -1,5 +1,4 @@
-"""
-
+"""Generic interface for managing a connection with a server.
 
 defaults ports info: https://www.siteground.com/tutorials/email/pop3-imap-smtp-ports.htm
 """
@@ -52,7 +51,6 @@ class Connection(metaclass=abc.ABCMeta):
 
     @property
     def port(self) -> int:
-
         if self._port is not None:
             assert isinstance(self._port, int)
             # assert self._port in type(self).ssl_ports if self.ssl \

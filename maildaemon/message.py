@@ -8,8 +8,7 @@ import logging
 import dateutil.parser
 # import pytz
 
-# from .server import Server
-# from .smtp_server import SMTPServer
+from .connection import Connection
 
 _LOG = logging.getLogger(__name__)
 
@@ -54,7 +53,7 @@ class Message:
     """An e-mail message."""
 
     @classmethod
-    def from_email_message(cls, msg: email.message.EmailMessage, server: 'Server' = None,
+    def from_email_message(cls, msg: email.message.EmailMessage, server: Connection = None,
                            folder: str = None, msg_id: int = None):
 
         m = cls(msg, server, folder, msg_id)
@@ -109,7 +108,7 @@ class Message:
     def __init__(self, msg=None, server=None, folder=None, msg_id=None):
 
         self._email_message = msg  # type: email.message.EmailMessage
-        self._origin_server = server  # type: Server
+        self._origin_server = server  # type: Connection
         self._origin_folder = folder  # type: str
         self._origin_id = msg_id  # type: int
 
@@ -143,24 +142,21 @@ class Message:
     def time(self):
         return self.datetime.time()
 
-    def move_to(self, server: 'Server', folder: str) -> None:
-
+    def move_to(self, server: Connection, folder: str) -> None:
+        """Move message to a specific folder on a specific server."""
         if server is self._origin_server:
             if folder == self._origin_folder:
                 _LOG.debug('move_to() destination same as origin, nothing to do')
             _LOG.error('move_to() not implemented moving within same server')
-            # raise NotImplementedError()
-
+            raise NotImplementedError()
         else:
             _LOG.error('move_to() not implemented moving between servers')
-            # raise NotImplementedError()
+            raise NotImplementedError()
 
-    def copy_to(self, server: 'Server', folder: str) -> None:
-
+    def copy_to(self, server: Connection, folder: str) -> None:
         raise NotImplementedError()
 
-    def send_via(self, server: 'Server') -> None:
-
+    def send_via(self, server: Connection) -> None:
         server.send_message(self._email_message)
 
     def str_headers(self):

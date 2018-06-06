@@ -45,7 +45,7 @@ class POPDaemon(Daemon, POPConnection):
                     '%s: message #%i has defect: %s',
                     self, message_id, defect)
 
-        return Message.from_email_message(email_message)
+        return Message.from_email_message(email_message, self, None, message_id)
 
     def _update_messages(self):
 
