@@ -1,3 +1,4 @@
+"""IMAP connection handling."""
 
 import imaplib
 import logging
@@ -40,7 +41,6 @@ class IMAPConnection(Connection):
 
     def connect(self) -> None:
         """Use imaplib.login() command."""
-
         status = None
         try:
             status, response = self._link.login(self.login, self.password)
@@ -58,7 +58,6 @@ class IMAPConnection(Connection):
 
     def is_alive(self) -> bool:
         """Use imaplib.noop() command."""
-
         status = None
         try:
             status, response = self._link.noop()
@@ -88,7 +87,6 @@ class IMAPConnection(Connection):
 
     def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.List[str]]]:
         """Use imaplib.list() command."""
-
         status = None
         try:
             status, raw_folders = self._link.list()
@@ -116,14 +114,12 @@ class IMAPConnection(Connection):
         return folders_with_flags
 
     def retrieve_folders(self) -> t.List[str]:
-
+        """Get list of IMAP folders."""
         folders_with_flags = self.retrieve_folders_with_flags()
-
         folder_names = []
         for folder_with_flags in folders_with_flags:
             folder_name, _ = folder_with_flags
             folder_names.append(folder_name)
-
         return folder_names
 
     def create_folder(self, folder: str) -> None:
@@ -139,7 +135,6 @@ class IMAPConnection(Connection):
 
         Use imaplib.fetch() command.
         """
-
         if folder is None:
             folder = 'INBOX'
 
@@ -163,7 +158,6 @@ class IMAPConnection(Connection):
 
     def retrieve_message_ids(self, folder: t.Optional[str] = None) -> t.List[int]:
         """Use imaplib.search() command."""
-
         if folder is None:
             folder = self._folder
 
@@ -202,7 +196,6 @@ class IMAPConnection(Connection):
         Return list of tuples. One tuple (envelope, body) for each requested message id. Contents
         of both tuple elements depend on requested message parts, and body element might be None.
         """
-
         if folder is None:
             folder = self._folder
 
@@ -251,9 +244,7 @@ class IMAPConnection(Connection):
         Return a single tuple (envelope, body). Contents of both tuple elements depend on requested
         message parts, and body element might be None.
         """
-
         data = self.retrieve_messages_parts([message_id], parts, folder)
-
         return data[0]
 
     def _alter_messages_flags(
@@ -273,7 +264,6 @@ class IMAPConnection(Connection):
 
         See STORE method definition: https://tools.ietf.org/html/rfc3501#section-6.4.6
         """
-
         if folder is None:
             folder = self._folder
 
@@ -295,10 +285,7 @@ class IMAPConnection(Connection):
     def add_messages_flags(
             self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool = False,
             folder: t.Optional[str] = None):
-        """
-        Issue "+FLAGS" command.
-        """
-
+        """Issue "+FLAGS" command."""
         self._alter_messages_flags(message_ids, flags, True, silent, folder)
 
     def remove_messages_flags(
@@ -345,7 +332,6 @@ class IMAPConnection(Connection):
     def copy_message(
             self, message_id: int, target_folder: str,
             source_folder: t.Optional[str] = None) -> None:
-
         self.copy_messages([message_id], target_folder, source_folder)
 
     def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str] = None) -> None:
@@ -363,7 +349,6 @@ class IMAPConnection(Connection):
 
         This method does not rely on MOVE command https://tools.ietf.org/html/rfc6851
         """
-
         self.copy_messages(message_ids, target_folder, source_folder)
         self.delete_messages(message_ids, source_folder)
 
