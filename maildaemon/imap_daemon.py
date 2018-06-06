@@ -55,9 +55,8 @@ class IMAPDaemon(Daemon, IMAPConnection):
             email_message = email.message_from_bytes(body)
             if email_message.defects:
                 for defect in email_message.defects:
-                    _LOG.error(
-                        '%s: message #%i in "%s" has defect: %s',
-                        self, message_id, self._folder, defect)
+                    _LOG.error('%s: message #%i in "%s" has defect: %s',
+                               self, message_id, self._folder, defect)
 
             message = Message.from_email_message(email_message, self, self._folder, message_id)
             messages.append(message)

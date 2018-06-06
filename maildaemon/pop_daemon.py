@@ -1,3 +1,4 @@
+"""Daemon working with POP connections."""
 
 import email.parser
 import logging
@@ -12,6 +13,8 @@ _LOG = logging.getLogger(__name__)
 
 class POPDaemon(Daemon, POPConnection):
 
+    """Daemon working with POP connections."""
+
     def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
         Daemon.__init__(self)
         POPConnection.__init__(self, domain, ssl, port)
@@ -20,18 +23,14 @@ class POPDaemon(Daemon, POPConnection):
         self.message_ids = {'INBOX': []}  # type: t.Mapping[str, t.List[int]]
         self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
 
-    def retrieve_messages(
-            self, message_ids: t.List[int]) -> t.List[Message]:
-
+    def retrieve_messages(self, message_ids: t.List[int]) -> t.List[Message]:
         messages = []
         for message_id in message_ids:
             message = self.retrieve_message(message_id)
             messages.append(message)
-
         return messages
 
     def retrieve_message(self, message_id: int) -> Message:
-
         message_lines = self.retrieve_message_lines(message_id)
 
         bytes_feed_parser = email.parser.BytesFeedParser()
@@ -41,14 +40,11 @@ class POPDaemon(Daemon, POPConnection):
 
         if email_message.defects:
             for defect in email_message.defects:
-                _LOG.error(
-                    '%s: message #%i has defect: %s',
-                    self, message_id, defect)
+                _LOG.error('%s: message #%i has defect: %s', self, message_id, defect)
 
         return Message.from_email_message(email_message, self, None, message_id)
 
     def _update_messages(self):
-
         message_ids = self.retrieve_message_ids()
         new_message_ids = []
 
@@ -57,9 +53,6 @@ class POPDaemon(Daemon, POPConnection):
                 _LOG.warning('%s: message #%i was deleted', self, message_id)
                 self.message_ids['INBOX'].remove(message_id)
                 del self.messages['INBOX', message_id]
-                # try:
-                # except KeyError:
-                #    _LOG.exception('%s: deleted a non-existing message "%i"', self, message_id)
 
         for message_id in message_ids:
             if message_id not in self.message_ids['INBOX']:
@@ -71,12 +64,10 @@ class POPDaemon(Daemon, POPConnection):
 
         for new_message_id, new_message in zip(new_message_ids, new_messages):
             if ('INBOX', new_message_id) in self.messages:
-                _LOG.error(
-                    '%s: message #%i is not really new\ncurrent:\n%s\nnew:\n%s',
-                    self, new_message_id, repr(self.messages['INBOX', new_message_id]),
-                    repr(new_message))
+                _LOG.error('%s: message #%i is not really new\ncurrent:\n%s\nnew:\n%s',
+                           self, new_message_id, repr(self.messages['INBOX', new_message_id]),
+                           repr(new_message))
             self.messages['INBOX', new_message_id] = new_message
 
     def update(self):
-
         self._update_messages()

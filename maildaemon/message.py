@@ -6,7 +6,6 @@ import email.message
 import logging
 
 import dateutil.parser
-# import pytz
 
 from .connection import Connection
 
@@ -99,9 +98,6 @@ class Message:
                 m.attachments.append(part)
                 continue
             text = part.get_payload(decode=True).decode(charset)
-
-            # if text.startswith('<'):
-            #    continue
             m.contents.append(text)
         return m
 
