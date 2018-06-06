@@ -17,13 +17,12 @@ class Tests(unittest.TestCase):
     config = load_config(_TEST_CONFIG_PATH)
 
     def test_retrieve_message_ids(self):
-
         for connection_name in ['test-pop', 'test-pop-ssl']:
             with self.subTest(msg=connection_name):
-                c = POPConnection.from_dict(self.config['connections'][connection_name])
-                c.connect()
-                ids = c.retrieve_message_ids()
-                self.assertIsInstance(ids, list, msg=c)
-                alive = c.is_alive()
-                self.assertTrue(alive, msg=c)
-                c.disconnect()
+                connection = POPConnection.from_dict(self.config['connections'][connection_name])
+                connection.connect()
+                ids = connection.retrieve_message_ids()
+                alive = connection.is_alive()
+                connection.disconnect()
+                self.assertIsInstance(ids, list, msg=connection)
+                self.assertTrue(alive, msg=connection)
