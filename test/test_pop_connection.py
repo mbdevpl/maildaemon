@@ -1,3 +1,4 @@
+"""Tests for POP connection handling."""
 
 import os
 import pathlib

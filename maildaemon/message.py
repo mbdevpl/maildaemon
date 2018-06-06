@@ -1,3 +1,4 @@
+"""Handling e-mail messages."""
 
 import datetime
 import email.header

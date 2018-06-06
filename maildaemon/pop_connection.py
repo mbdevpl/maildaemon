@@ -1,3 +1,4 @@
+"""POP connection handling."""
 
 import logging
 import poplib
@@ -12,6 +13,7 @@ TIMEOUT = 10
 
 
 class POPConnection(Connection):
+
     """For handling POP connections."""
 
     ports = [110]

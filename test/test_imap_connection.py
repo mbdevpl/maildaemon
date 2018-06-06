@@ -1,3 +1,4 @@
+"""Tests for IMAP connection handling."""
 
 import logging
 import os
