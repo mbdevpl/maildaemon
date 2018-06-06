@@ -19,7 +19,6 @@ class Tests(unittest.TestCase):
 
     config = load_config(_TEST_CONFIG_PATH)
 
-    @unittest.skip('...')
     def test_update_folders(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
