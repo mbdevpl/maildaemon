@@ -249,7 +249,7 @@ class IMAPConnection(Connection):
 
     def _alter_messages_flags(
             self, message_ids: t.Sequence[int], flags: t.Sequence[str],
-            alteration: t.Optional[bool] = True, silent: bool = False,
+            alteration: t.Optional[bool], silent: bool = False,
             folder: t.Optional[str] = None) -> None:
         """Alter flags on messages.
 
@@ -274,13 +274,19 @@ class IMAPConnection(Connection):
 
         command = '{}FLAGS{}'.format(command_prefix, command_suffix)
 
-        # TODO: add error handling for store()
-        status, response = self._link.store(
-            ','.join([str(message_id) for message_id in message_ids]), command,
-            '({})'.format(' '.join(['\\{}'.format(flag) for flag in flags])))
-        _LOG.info(
-            '%s: store(%s, %s, %s) status: %s, response: %s',
-            self, message_ids, command, flags, status, response)
+        try:
+            status, response = self._link.store(
+                ','.join([str(message_id) for message_id in message_ids]), command,
+                '({})'.format(' '.join(['\\{}'.format(flag) for flag in flags])))
+            _LOG.info(
+                '%s: store(%s, %s, %s) status: %s, response: %s',
+                self, message_ids, command, flags, status, response)
+        except imaplib.IMAP4.error as err:
+            _LOG.exception('%s: store(%s, "%s", %s) failed', self, message_ids, command, flags)
+            raise RuntimeError('alter_messages_flags() failed') from err
+
+        if status != 'OK':
+            raise RuntimeError('alter_messages_flags() failed')
 
     def add_messages_flags(
             self, message_ids: t.List[int], flags: t.Sequence[str], silent: bool = False,
@@ -334,13 +340,31 @@ class IMAPConnection(Connection):
             source_folder: t.Optional[str] = None) -> None:
         self.copy_messages([message_id], target_folder, source_folder)
 
-    def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str] = None) -> None:
+    def delete_messages(self, message_ids: t.List[int], folder: t.Optional[str] = None,
+                        purge_immediately: bool = False) -> None:
+        self.add_messages_flags(message_ids, ['Deleted'], folder=folder)
+        if purge_immediately:
+            self.purge_deleted_messages(folder=folder)
 
-        self.add_messages_flags(message_ids, True, 'Deleted', folder)
+    def delete_message(self, message_id: int, folder: t.Optional[str] = None,
+                       purge_immediately: bool = False) -> None:
+        self.delete_messages([message_id], folder, purge_immediately)
 
-    def delete_message(self, message_id: int, folder: t.Optional[str] = None) -> None:
+    def purge_deleted_messages(self, folder: t.Optional[str] = None) -> None:
+        """Use imaplib.expunge()."""
+        if folder is None:
+            folder = self._folder
+        self.open_folder(folder)
+        try:
+            status, response = self._link.expunge()
+            _LOG.info('%s: expunge() status: %s, response: %s',
+                      self, status, [r for r in response])
+        except imaplib.IMAP4.error as err:
+            _LOG.exception('%s: expunge() failed', self)
+            raise RuntimeError('purge_deleted_messages() failed') from err
 
-        self.delete_messages([message_id], folder)
+        if status != 'OK':
+            raise RuntimeError('purge_deleted_messages() failed')
 
     def move_messages(
             self, message_ids: t.List[int], target_folder: str,

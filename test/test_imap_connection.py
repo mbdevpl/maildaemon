@@ -41,6 +41,16 @@ class Tests(unittest.TestCase):
                 self.assertTrue(alive, msg=c)
                 c.disconnect()
 
+    def test_delete_message(self):
+        connection = IMAPConnection.from_dict(self.config['connections']['test-imap-ssl'])
+        connection.connect()
+        connection.delete_message(12, 'INBOX')
+        connection.purge_deleted_messages()
+        with self.assertRaises(RuntimeError):
+            connection.delete_message(12, 'INBOX')
+        connection.delete_message(9, 'INBOX', purge_immediately=True)
+        connection.disconnect()
+
     @unittest.skip('long')
     def test_timeout(self):
 
