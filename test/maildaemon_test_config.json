@@ -35,8 +35,8 @@
     "test-smtp": {
       "protocol": "SMTP",
       "domain": "127.0.0.1",
-      "ssl": true,
-      "port": 587,
+      "ssl": false,
+      "port": 25,
       "login": "testuser",
       "password": "applesauce"
     }

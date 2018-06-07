@@ -1,13 +1,16 @@
-"""Tests for handling SMTP connections."""
+"""Tests for daemon working with SMTP connections."""
 
 import email
+import logging
 import os
 import pathlib
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
-from maildaemon.smtp_connection import SMTPConnection
+from maildaemon.smtp_daemon import SMTPDaemon
+
+_LOG = logging.getLogger(__name__)
 
 _HERE = pathlib.Path(__file__).parent
 _TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
@@ -20,13 +23,7 @@ class Tests(unittest.TestCase):
     config = load_config(_TEST_CONFIG_PATH)
 
     @unittest.skipUnless(os.environ.get('TEST_SMTP'), 'skipping SMTP-related test')
-    def test_connect(self):
-        smtp = SMTPConnection.from_dict(self.config['connections']['test-smtp'])
-        smtp.connect()
-        smtp.disconnect()
-
-    @unittest.skipUnless(os.environ.get('TEST_SMTP'), 'skipping SMTP-related test')
-    def test_send_message(self):
+    def test_update(self):
         imap = IMAPConnection.from_dict(self.config['connections']['test-imap'])
         imap.connect()
         _, body = imap.retrieve_message_parts(1, ['BODY.PEEK[]'])
@@ -34,13 +31,10 @@ class Tests(unittest.TestCase):
 
         message = email.message_from_bytes(body)
 
-        smtp = SMTPConnection.from_dict(self.config['connections']['test-smtp'])
-        smtp.connect()
-        del message['Subject']
-        message['Subject'] = 'test'
-        del message['From']
-        message['From'] = 'dummy@domain.com'
-        del message['To']
-        message['To'] = 'dummy@domain.com'
-        smtp.send_message(message)
-        smtp.disconnect()
+        connection = SMTPDaemon.from_dict(self.config['connections']['test-smtp'])
+        connection.connect()
+        connection.add_to_outbox(message)
+        self.assertGreater(len(connection.outbox), 0, msg=connection)
+        connection.update()
+        connection.disconnect()
+        self.assertEqual(len(connection.outbox), 0, msg=connection)

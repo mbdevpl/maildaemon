@@ -1,3 +1,4 @@
+"""For handling SMTP connections."""
 
 import email.message
 import logging
@@ -12,6 +13,7 @@ TIMEOUT = 10
 
 
 class SMTPConnection(Connection):
+
     """For handling SMTP connections."""
 
     ports = [25, 465, 587]
