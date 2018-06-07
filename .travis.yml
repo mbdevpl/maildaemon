@@ -14,7 +14,7 @@ install:
   - pip install -U -r dev_requirements.txt
 
 before_script:
-  - git clone https://github.com/mbdevpl/DovecotTesting ../DovecotTesting
+  - git clone https://github.com/mbdevpl/DovecotTesting.git ../DovecotTesting
   - bash ../DovecotTesting/SetupEnvironment.sh
   - bash ../DovecotTesting/VerifyEnvironment.sh
 
