@@ -217,7 +217,7 @@ Running tests:
 .. code:: bash
 
     vagrant provision  # to reset IMAP/POP mailboxes after previous tests
-    TEST_COMM=1 python -m coverage run --branch --source . -m unittest discover --verbose
+    TEST_COMM=1 TEST_SMTP=1 python3 -m coverage run --branch --source . -m unittest discover --verbose
 
 The vagrant service has a built-in 30 min timeout, and will turn off after it.
 Running "vagrant provision" resets the countdown.
