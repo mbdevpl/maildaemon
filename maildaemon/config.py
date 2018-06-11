@@ -1,11 +1,27 @@
 """JSON configuration reader."""
 
 import json
+import os
 import pathlib
+import platform
+import typing as t
 
 # from ingit.json_config import file_to_json
 
-DEFAULT_CONFIG_PATH = pathlib.Path('maildaemon_config.json')
+CONFIG_DIRECTORIES = {
+    'Linux': pathlib.Path('~', '.config', 'maildaemon'),
+    'Darwin': pathlib.Path('~', 'Library', 'Preferences', 'maildaemon'),
+    'Windows': pathlib.Path('%LOCALAPPDATA%', 'maildaemon')}
+
+CONFIG_DIRECTORY = CONFIG_DIRECTORIES[platform.system()]
+CONFIG_FILENAME = 'maildaemon_config.json'
+DEFAULT_CONFIG_PATH = pathlib.Path(CONFIG_DIRECTORY, CONFIG_FILENAME)
+
+
+def normalize_path(path: t.Union[pathlib.Path, str]) -> t.Union[pathlib.Path, str]:
+    if isinstance(path, str):
+        return os.path.expanduser(os.path.expandvars(path))
+    return pathlib.Path(normalize_path(str(path)))
 
 
 def str_to_json(text: str) -> dict:
@@ -21,7 +37,7 @@ def str_to_json(text: str) -> dict:
 
 def file_to_json(path: pathlib.Path) -> dict:
     """Create JSON object from a file."""
-    with open(str(path), 'r', encoding='utf-8') as json_file:
+    with open(normalize_path(str(path)), 'r', encoding='utf-8') as json_file:
         text = json_file.read()
     try:
         data = str_to_json(text)
