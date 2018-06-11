@@ -72,7 +72,10 @@ class Connection(metaclass=abc.ABCMeta):
     @property
     def login(self) -> str:
         assert self._login is None or isinstance(self._login, str)
-        return getpass.getuser() if self._login is None else self._login
+        if self._login is None:
+            print('User at {}:{}: '.format(self.domain, self.port), end='', flush=True)
+            self._login = getpass.getuser()
+        return self._login
 
     @login.setter
     def login(self, login: t.Optional[str]):
@@ -82,7 +85,11 @@ class Connection(metaclass=abc.ABCMeta):
     @property
     def password(self) -> str:
         assert self._password is None or isinstance(self._password, str)
-        return getpass.getpass() if self._password is None else self._password
+        if self._password is None:
+            user = 'unknown user' if self._login is None else 'user {}'.format(self.login)
+            self._password = getpass.getpass('Password for {} at {}:{}: '
+                                             .format(user, self.domain, self.port))
+        return self._password
 
     @password.setter
     def password(self, password: t.Optional[str]):
