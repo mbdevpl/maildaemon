@@ -1,9 +1,14 @@
 """Maildaemon configuration reader."""
 
+import logging
 import pathlib
 import platform
 
-from encrypted_config import file_to_json
+import rsa
+
+from encrypted_config import normalize_path, file_to_json, decrypt_json
+
+_LOG = logging.getLogger(__name__)
 
 CONFIG_DIRECTORIES = {
     'Linux': pathlib.Path('~', '.config', 'maildaemon'),
@@ -18,6 +23,13 @@ DEFAULT_CONFIG_PATH = pathlib.Path(CONFIG_DIRECTORY, CONFIG_FILENAME)
 def load_config(path: pathlib.Path = DEFAULT_CONFIG_PATH):
     """Load maildaemon configuration from file."""
     config = file_to_json(path)
+    if 'private-key' in config:
+        _LOG.warning('%s', config)
+        try:
+            config = decrypt_json(config, normalize_path(pathlib.Path(config['private-key'])))
+            _LOG.warning('decrypted configuration')
+        except rsa.pkcs1.DecryptionError as err:
+            raise ValueError('failed to decrypt using {}'.format(config['private-key'])) from err
     try:
         validate_config(config)
     except AssertionError as err:
