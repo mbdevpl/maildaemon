@@ -11,7 +11,7 @@ matrix:
 
 install:
   - pip install -U pip
-  - pip install -U -r dev_requirements.txt
+  - pip install -U -r ci_requirements.txt
 
 before_script:
   # IMAP and POP

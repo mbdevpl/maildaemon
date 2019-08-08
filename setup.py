@@ -9,7 +9,7 @@ class Package(setup_boilerplate.Package):
 
     name = 'maildaemon'
     description = 'multi-server mail filtering daemon supporting IMAP, POP and SMTP'
-    download_url = 'https://github.com/mbdevpl/maildaemon'
+    url = 'https://github.com/mbdevpl/maildaemon'
     classifiers = [
         'Development Status :: 1 - Planning',
         'Environment :: Console',
