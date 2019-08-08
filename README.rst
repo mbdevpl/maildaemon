@@ -9,6 +9,8 @@
 maildaemon
 ==========
 
+Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
+
 .. image:: https://img.shields.io/pypi/v/maildaemon.svg
     :target: https://pypi.python.org/pypi/maildaemon
     :alt: package version from PyPI
@@ -29,7 +31,13 @@ maildaemon
     :target: https://github.com/mbdevpl/maildaemon/blob/master/NOTICE
     :alt: license
 
-Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
+The goal of this library is to enable unified filtering for various e-mail servers,
+as well as inter-account filtering. Additional aim of this project is to enable filtering e-mails
+in a centralized way as opposed to some filters being applied by the server,
+and another filters by the client.
+
+Eventually, maildaemon should make provider-dependent and client-dependent mail filtering settings obsolete.
+It is currently in development and doesn't achieve its goals yet.
 
 Usage examples are shown in `<examples.ipynb>`_
 
@@ -47,7 +55,7 @@ For simplest installation use :bash:`pip`:
     pip3 install maildaemon
 
 
-Python >= 3.5 is required, and required dependencies defined in `<requirements.txt>`_
+Python 3.5 or later is required, and required dependencies defined in `<requirements.txt>`_
 will be automatically installed too.
 
 Maildaemon works based on a JSON configuration file. If it doesn't exist,
