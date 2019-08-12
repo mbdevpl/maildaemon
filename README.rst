@@ -27,7 +27,7 @@ Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
     :target: https://codecov.io/gh/mbdevpl/maildaemon
     :alt: test coverage from Codecov
 
-.. image:: https://img.shields.io/pypi/l/maildaemon.svg
+.. image:: https://img.shields.io/github/license/mbdevpl/maildaemon.svg
     :target: https://github.com/mbdevpl/maildaemon/blob/master/NOTICE
     :alt: license
 
