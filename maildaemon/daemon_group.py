@@ -1,22 +1,26 @@
 
 import logging
-# import time
-# import typing as t
+import time
+import typing as t
+
+import timing
 
 # from .message import Message
 # from .message_filter import MessageFilter
 from .connection_group import ConnectionGroup
 from .daemon import Daemon
-# from .timing import Timing
 
 _LOG = logging.getLogger(__name__)
+_TIME = timing.get_timing_group(__name__)
 
 
 class DaemonGroup:
 
     """Manage a group of mail daemons."""
 
-    def __init__(self, connections: ConnectionGroup, filters: 't.Sequence[MessageFilter]'):
+    def __init__(
+            self, connections: ConnectionGroup, filters: 't.Sequence[MessageFilter]',
+            max_iterations: int = 1):
         self._connections = connections
         self._daemons = []
         for daemon in connections:
@@ -25,34 +29,39 @@ class DaemonGroup:
         self._filters = []
         for filter_ in filters:
             self._filters.append(filter_)
+        self.max_iterations = max_iterations
 
     # def add_filter(self, message_filter: 'MessageFilter'):
     #    self._filters.append(message_filter)
 
     def update(self):
         for daemon in self._daemons:
+            _LOG.warning('updating %s', daemon)
             daemon.update()
 
     def run(self):
         self._connections.connect_all()
 
-        # for _ in range(0, 3):
+        iteration = 0
         while True:
-            # _T1 = Timing('is_alive').start()
+            iteration += 1
             self._connections.purge_dead()
             if not self._connections:
+                _LOG.warning('all connections died')
                 break
-            # _T1.stop()
 
-            # _T2 = Timing('update').start()
-            self.update()
-            # _T2.stop()
+            _LOG.warning('iteration %i: %i active connection(s)', iteration, len(self._connections))
+
+            with _TIME.measure('DaemonGroup.run.iteration.update') as timer:
+                self.update()
+
+            if iteration >= self.max_iterations:
+                break
 
             # print('processing {} new messages: {}'.format(len(new_msg_ids), new_msg_ids))
 
-            # _LOG.debug('%s %s', _T1, _T2)
-            # time.sleep(5)
-            break
+            if timer.elapsed < 4:
+                time.sleep(4 - timer.elapsed)
 
         self._connections.disconnect_all()
 
