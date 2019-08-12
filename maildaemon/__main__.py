@@ -4,6 +4,7 @@ This is "__main__.py" file of maildaemon module.
 
 import argparse
 import logging
+import pathlib
 
 import daemon
 
@@ -88,6 +89,11 @@ Copyright 2016-2019 Mateusz Bysiek  https://mbdevpl.github.io/
     parser.version = version
 
     parser.add_argument(
+        '--config', metavar='PATH', type=pathlib.Path, default=DEFAULT_CONFIG_PATH,
+        help='''path to the configuration file;
+        can be absolute, or relative to current woking directory''')
+
+    parser.add_argument(
         '--daemon', '-d', action='store_true', default=False, required=False,
         help='''run as daemon''')
 
@@ -121,7 +127,7 @@ def main(args=None):
     if args.quiet:
         logging.getLogger().setLevel(logging.CRITICAL)
 
-    config = load_config(DEFAULT_CONFIG_PATH)
+    config = load_config(args.config)
 
     group = ConnectionGroup.from_dict(config['connections'])
 
