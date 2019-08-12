@@ -1,12 +1,14 @@
-"""JSON configuration reader."""
+"""Maildaemon configuration reader."""
 
-import json
-import os
+import logging
 import pathlib
 import platform
-import typing as t
 
-# from ingit.json_config import file_to_json
+import rsa
+
+from encrypted_config import normalize_path, file_to_json, decrypt_json
+
+_LOG = logging.getLogger(__name__)
 
 CONFIG_DIRECTORIES = {
     'Linux': pathlib.Path('~', '.config', 'maildaemon'),
@@ -18,37 +20,16 @@ CONFIG_FILENAME = 'maildaemon_config.json'
 DEFAULT_CONFIG_PATH = pathlib.Path(CONFIG_DIRECTORY, CONFIG_FILENAME)
 
 
-def normalize_path(path: t.Union[pathlib.Path, str]) -> t.Union[pathlib.Path, str]:
-    if isinstance(path, str):
-        return os.path.expanduser(os.path.expandvars(path))
-    return pathlib.Path(normalize_path(str(path)))
-
-
-def str_to_json(text: str) -> dict:
-    """Convert JSON string into an object."""
-    try:
-        return json.loads(text)
-    except json.decoder.JSONDecodeError as err:
-        lines = text.splitlines(keepends=True)
-        raise ValueError('\n{}{}\n{}'.format(
-            ''.join(lines[max(0, err.lineno - 10):err.lineno]), '-' * err.colno,
-            ''.join(lines[err.lineno:min(err.lineno + 10, len(lines))]))) from err
-
-
-def file_to_json(path: pathlib.Path) -> dict:
-    """Create JSON object from a file."""
-    with open(normalize_path(str(path)), 'r', encoding='utf-8') as json_file:
-        text = json_file.read()
-    try:
-        data = str_to_json(text)
-    except ValueError as err:
-        raise ValueError('in file "{}"'.format(path)) from err
-    return data
-
-
 def load_config(path: pathlib.Path = DEFAULT_CONFIG_PATH):
     """Load maildaemon configuration from file."""
     config = file_to_json(path)
+    if 'private-key' in config:
+        _LOG.warning('%s', config)
+        try:
+            config = decrypt_json(config, normalize_path(pathlib.Path(config['private-key'])))
+            _LOG.warning('decrypted configuration')
+        except rsa.pkcs1.DecryptionError as err:
+            raise ValueError('failed to decrypt using {}'.format(config['private-key'])) from err
     try:
         validate_config(config)
     except AssertionError as err:
