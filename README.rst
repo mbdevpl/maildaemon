@@ -170,7 +170,7 @@ Filter parameters are:
 Filter condition
 ~~~~~~~~~~~~~~~~
 
-TODO
+Details to be decided.
 
 
 Filter actions
