@@ -24,10 +24,10 @@ def load_config(path: pathlib.Path = DEFAULT_CONFIG_PATH):
     """Load maildaemon configuration from file."""
     config = file_to_json(path)
     if 'private-key' in config:
-        _LOG.warning('%s', config)
+        _LOG.debug('decrypting configuration...')
         try:
             config = decrypt_json(config, normalize_path(pathlib.Path(config['private-key'])))
-            _LOG.warning('decrypted configuration')
+            _LOG.debug('decrypted configuration')
         except rsa.pkcs1.DecryptionError as err:
             raise ValueError('failed to decrypt using {}'.format(config['private-key'])) from err
     try:
