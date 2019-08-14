@@ -101,6 +101,15 @@ class Message:
                                  ' - ignoring others', len(subparts), content_type)
                 part = subparts[-1]
                 content_type = part.get_content_type()
+            elif content_type == 'multipart/related':
+                subparts = part.get_payload()
+                assert isinstance(subparts, list), type(subparts)
+                assert len(subparts) > 0
+                if len(subparts) > 1:
+                    _LOG.warning('taking only first part of %i available in part type %s'
+                                 ' - ignoring related parts', len(subparts), content_type)
+                part = subparts[0]
+                content_type = part.get_content_type()
             if content_type not in {'text/plain', 'text/html'}:
                 _LOG.info('treating message part with type %s as attachment', content_type)
                 m.attachments.append(part)
