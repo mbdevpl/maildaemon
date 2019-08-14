@@ -92,6 +92,15 @@ class Message:
         _parts = msg.get_payload() if msg.is_multipart() else [msg]
         for part in _parts:
             content_type = part.get_content_type()
+            if content_type == 'multipart/alternative':
+                subparts = part.get_payload()
+                assert isinstance(subparts, list), type(subparts)
+                assert len(subparts) > 0
+                if len(subparts) > 1:
+                    _LOG.warning('taking last alternative of %i available in part type %s'
+                                 ' - ignoring others', len(subparts), content_type)
+                part = subparts[-1]
+                content_type = part.get_content_type()
             if content_type not in {'text/plain', 'text/html'}:
                 _LOG.info('treating message part with type %s as attachment', content_type)
                 m.attachments.append(part)
