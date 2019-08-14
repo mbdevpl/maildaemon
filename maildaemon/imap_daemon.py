@@ -115,6 +115,8 @@ class IMAPDaemon(Daemon, IMAPConnection):
         self.update_folders()
 
         for folder in self.folders:
+            if folder != 'INBOX':
+                continue  # TODO: in the future, fetch all folders
             try:
                 self.open_folder(folder)
             except RuntimeError:
