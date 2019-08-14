@@ -23,7 +23,7 @@ class DaemonGroup:
             max_iterations: int = 1):
         self._connections = connections
         self._daemons = []
-        for daemon in connections:
+        for _, daemon in connections.items():
             if isinstance(daemon, Daemon):
                 self._daemons.append(daemon)
         self._filters = []
@@ -51,6 +51,7 @@ class DaemonGroup:
                 break
 
             _LOG.warning('iteration %i: %i active connection(s)', iteration, len(self._connections))
+            _LOG.debug('%s', self._connections)
 
             with _TIME.measure('DaemonGroup.run.iteration.update') as timer:
                 self.update()
