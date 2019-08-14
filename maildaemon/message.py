@@ -68,9 +68,14 @@ class Message:
             elif key == 'Subject':
                 m.subject = recode_header(value)
             elif key == 'Date':
-                _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
-                m.datetime = _datetime
-                m.timezone = recode_timezone_info(_datetime)
+                try:
+                    _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
+                    m.datetime = _datetime
+                    m.timezone = recode_timezone_info(_datetime)
+                except ValueError:
+                    _LOG.exception('dateutil failed to parse string "%s" into a date/time', value)
+                    m.dateitme = None
+                    m.timezone = None
             elif key == 'Received':
                 m.received.append(value)
             elif key == 'Return-Path':
