@@ -98,14 +98,27 @@ class Message:
                 continue
             charset = part.get_content_charset()
             if charset:
-                text = part.get_payload(decode=True).decode(charset)
+                text = part.get_payload(decode=True)
+                try:
+                    text = text.decode(charset)
+                except UnicodeDecodeError:
+                    _LOG.exception('failed to decode %i-character text using encoding "%s"',
+                                   len(text), charset)
             else:
                 text = part.get_payload()
-                if text:
-                    _LOG.error('no content charset in a message %s in part %s',
+                try:
+                    if isinstance(text, bytes):
+                        text = text.decode('utf-8')
+                except UnicodeDecodeError:
+                    _LOG.exception('failed to decode %i-character text using encoding "%s"',
+                                   len(text), 'utf-8')
+                if not isinstance(text, str):
+                    _LOG.error('no content charset in a message %s in part %s -- attachment?',
                                m.str_headers_compact(), part.as_bytes()[:128])
                     m.attachments.append(part)
-                    continue
+                    text = None
+            if not text:
+                continue
             m.contents.append(text)
         return m
 
