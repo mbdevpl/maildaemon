@@ -16,7 +16,6 @@ socket.setdefaulttimeout(TIMEOUT)
 
 
 class IMAPConnection(Connection):
-
     """For handling IMAP connections.
 
     According to imaplib.IMAP4 documentation: "All IMAP4rev1 commands are supported".
@@ -310,7 +309,6 @@ class IMAPConnection(Connection):
             self, message_ids: t.List[int], target_folder: str,
             source_folder: t.Optional[str] = None) -> None:
         """Copy messages to a different folder within the same connection."""
-
         if source_folder is None:
             source_folder = self._folder
 
@@ -382,7 +380,6 @@ class IMAPConnection(Connection):
 
     def close_folder(self) -> None:
         """Use imaplib.close() command."""
-
         if self._folder is None:
             return
 
@@ -403,7 +400,6 @@ class IMAPConnection(Connection):
 
     def disconnect(self) -> None:
         """Use imaplib.logout() command."""
-
         self.close_folder()
 
         status = None

@@ -5,7 +5,7 @@ import typing as t
 import ordered_set
 
 from .connection import Connection
-from .imap_daemon import IMAPDaemon
+from .imap_cache import IMAPCache
 from .smtp_connection import SMTPConnection
 from .pop_daemon import POPDaemon
 
@@ -23,7 +23,7 @@ class ConnectionGroup(t.Dict[str, Connection]):
         for name, entry in data.items():
             try:
                 connection_class = {
-                    'IMAP': IMAPDaemon,
+                    'IMAP': IMAPCache,
                     'SMTP': SMTPConnection,
                     'POP': POPDaemon
                     }[entry['protocol']]

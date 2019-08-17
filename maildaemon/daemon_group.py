@@ -8,7 +8,7 @@ import timing
 # from .message import Message
 # from .message_filter import MessageFilter
 from .connection_group import ConnectionGroup
-from .daemon import Daemon
+from .email_cache import EmailCache
 
 _LOG = logging.getLogger(__name__)
 _TIME = timing.get_timing_group(__name__)
@@ -22,10 +22,10 @@ class DaemonGroup:
             self, connections: ConnectionGroup, filters: 't.Sequence[MessageFilter]',
             max_iterations: int = 1):
         self._connections = connections
-        self._daemons = []
-        for _, daemon in connections.items():
-            if isinstance(daemon, Daemon):
-                self._daemons.append(daemon)
+        self._caches = []  # type: t.List[EmailCache]
+        for _, cache in connections.items():
+            if isinstance(cache, EmailCache):
+                self._caches.append(cache)
         self._filters = []
         for filter_ in filters:
             self._filters.append(filter_)
@@ -35,9 +35,9 @@ class DaemonGroup:
     #    self._filters.append(message_filter)
 
     def update(self):
-        for daemon in self._daemons:
-            _LOG.warning('updating %s', daemon)
-            daemon.update()
+        for cache in self._caches:
+            _LOG.warning('updating %s', cache)
+            cache.update()
 
     def run(self):
         self._connections.connect_all()
