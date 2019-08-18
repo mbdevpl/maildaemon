@@ -74,7 +74,7 @@ class Message:
                     m.timezone = recode_timezone_info(_datetime)
                 except ValueError:
                     _LOG.exception('dateutil failed to parse string "%s" into a date/time', value)
-                    m.dateitme = None
+                    m.datetime = None
                     m.timezone = None
             elif key == 'Received':
                 m.received.append(value)
