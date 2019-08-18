@@ -18,6 +18,3 @@ def configure_logging():
             },
         'root': {'level': logging.WARNING, 'handlers': ['console']}
         })
-
-
-configure_logging()

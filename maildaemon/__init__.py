@@ -25,3 +25,4 @@ from .folder import Folder
 
 __all__ = ['Connection', 'IMAPConnection', 'Message', 'Folder']
 
+configure_logging()
