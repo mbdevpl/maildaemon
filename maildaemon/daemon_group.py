@@ -36,6 +36,20 @@ class DaemonGroup:
             _LOG.warning('updating "%s": %s', name, connection)
             connection.update()
 
+    def apply_filters(self):
+        if not self._filters:
+            return
+        for name, connection in self._connections.items():
+            if not isinstance(connection, EmailCache):
+                continue
+            _LOG.warning('filtering messages in "%s": %s', name, connection)
+            for folder in connection.folders:
+                for message in folder.messages:
+                    for message_filter in self._filters:
+                        if not message_filter.applies_to(message):
+                            continue
+                        _LOG.warning('filter %s applies to:\n%s', message_filter, message)
+
     def run(self):
         self._connections.connect_all()
 
@@ -52,6 +66,8 @@ class DaemonGroup:
 
             with _TIME.measure('DaemonGroup.run.iteration.update') as timer:
                 self.update()
+
+            self.apply_filters()
 
             if iteration >= self.max_iterations:
                 break
