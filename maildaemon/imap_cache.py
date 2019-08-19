@@ -1,6 +1,7 @@
 """E-mail cache working with IMAP connections."""
 
 import email
+import imaplib
 import logging
 import typing as t
 
@@ -132,21 +133,22 @@ class IMAPCache(EmailCache, IMAPConnection):
     def retrieve_messages(
             self, message_ids: t.List[int], folder: t.Optional[str] = None,
             headers_only: bool = False) -> t.List[Message]:
-        """For each message identifier request BODY.PEEK[] message part and parse it to Message.
+        """For each message ID request message flags and contents and parse it to Message."""
 
-        The BODY.PEEK[] is a functional equivalent of obsolete RFC822.PEEK,
-        see https://www.ietf.org/rfc/rfc2062 for details.
-        """
-        if headers_only:
-            requested_parts = ['BODY.PEEK[HEADER]']
-        else:
-            requested_parts = ['BODY.PEEK[]']
+        requested_parts = ['FLAGS']
+        # The BODY.PEEK[] is a functional equivalent of obsolete RFC822.PEEK,
+        # see https://www.ietf.org/rfc/rfc2062 for details.
+        requested_parts.append('BODY.PEEK[HEADER]' if headers_only else 'BODY.PEEK[]')
 
+        # flags_data = self.retrieve_messages_parts(message_ids, ['FLAGS'], folder)
+        # print(flags_data[0])
+        # all_data = self.retrieve_messages_parts(message_ids, ['FLAGS', 'BODY.PEEK[]'], folder)
+        # print(all_data[0])
         messages_data = self.retrieve_messages_parts(message_ids, requested_parts, folder)
 
         messages = []
-        for message_id, (_, body) in zip(message_ids, messages_data):
-            email_message = email.message_from_bytes(body)
+        for message_id, (metadata, message) in zip(message_ids, messages_data):
+            email_message = email.message_from_bytes(message)
             if headers_only:
                 email_message.defects = [
                     defect for defect in email_message.defects
@@ -156,6 +158,11 @@ class IMAPCache(EmailCache, IMAPConnection):
                            self, message_id, self._folder, email_message.defects)
 
             message = Message(email_message, self, self._folder, message_id)
+            flags = imaplib.ParseFlags(metadata)
+            for raw_flag in flags:
+                flag = raw_flag.decode()
+                assert flag.startswith('\\'), (flags, flag)
+                message.flags.add(flag[1:])
             messages.append(message)
 
         return messages

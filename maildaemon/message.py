@@ -4,6 +4,7 @@ import datetime
 import email.header
 import email.message
 import logging
+import typing as t
 
 import dateutil.parser
 
@@ -78,6 +79,7 @@ class Message:
         self.content_type = None
         self.other_headers = []
 
+        self.flags = set()  # type: t.Set[str]
         self.contents = []
         self.attachments = []
 
@@ -96,6 +98,22 @@ class Message:
         if self.datetime is None:
             return None
         return self.datetime.time()
+
+    @property
+    def is_read(self) -> bool:
+        return 'Seen' in self.flags
+
+    @property
+    def is_unread(self) -> bool:
+        return not self.is_read()
+
+    @property
+    def is_answered(self) -> bool:
+        return 'Answered' in self.flags
+
+    @property
+    def is_flagged(self) -> bool:
+        return 'Flagged' in self.flags
 
     def _init_headers_from_email_message(self, msg: email.message.EmailMessage) -> None:
         for key, value in msg.items():
@@ -254,7 +272,10 @@ class Message:
         return '\n'.join([
             self.str_headers(),
             '',
-            'Contents{}:'.format(' (multipart, {} parts)'.format(len(self.contents))
+            'id: {}'.format(self._origin_id),
+            'flags: {}'.format(self.flags),
+            '',
+            'contents{}:'.format(' (multipart, {} parts)'.format(len(self.contents))
                                  if len(self.contents) > 1 else ''),
             80*'=',
             (80*'=' + '\n').join(self.contents),
