@@ -130,12 +130,21 @@ class Message:
         elif key == 'Subject':
             self.subject = str(recode_header(value))
         elif key == 'Date':
+            self.datetime = None
             try:
-                _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
-                self.datetime = _datetime
-                self.timezone = recode_timezone_info(_datetime)
+                self.datetime = dateutil.parser.parse(value)
             except ValueError:
-                _LOG.exception('dateutil failed to parse string "%s" into a date/time', value)
+                try:
+                    self.datetime = dateutil.parser.parse(value, fuzzy=True)
+                    _LOG.debug(
+                        'dateutil failed to parse string "%s" into a date/time,'
+                        ' using fuzzy=True results in: %s', value, self.datetime, exc_info=1)
+                except ValueError:
+                    _LOG.debug(
+                        'dateutil failed to parse string "%s" into a date/time,'
+                        ' even using fuzzy=True', value, exc_info=1)
+            if self.datetime is not None:
+                self.timezone = recode_timezone_info(self.datetime)
         elif key == 'Received':
             self.received.append(value)
         elif key == 'Return-Path':
