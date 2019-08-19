@@ -13,7 +13,6 @@ _LOG = logging.getLogger(__name__)
 
 
 class IMAPCache(EmailCache, IMAPConnection):
-
     """E-mail cache working with IMAP connections."""
 
     def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):

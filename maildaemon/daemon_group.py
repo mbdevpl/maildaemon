@@ -6,7 +6,7 @@ import typing as t
 import timing
 
 # from .message import Message
-# from .message_filter import MessageFilter
+from .message_filter import MessageFilter
 from .connection_group import ConnectionGroup
 from .email_cache import EmailCache
 
@@ -15,17 +15,12 @@ _TIME = timing.get_timing_group(__name__)
 
 
 class DaemonGroup:
-
     """Manage a group of mail daemons."""
 
     def __init__(
-            self, connections: ConnectionGroup, filters: 't.Sequence[MessageFilter]',
+            self, connections: ConnectionGroup, filters: t.Sequence[MessageFilter],
             max_iterations: int = 1):
         self._connections = connections
-        self._caches = []  # type: t.List[EmailCache]
-        for _, cache in connections.items():
-            if isinstance(cache, EmailCache):
-                self._caches.append(cache)
         self._filters = []
         for filter_ in filters:
             self._filters.append(filter_)
@@ -35,9 +30,11 @@ class DaemonGroup:
     #    self._filters.append(message_filter)
 
     def update(self):
-        for cache in self._caches:
-            _LOG.warning('updating %s', cache)
-            cache.update()
+        for connection in self._connections:
+            if not isinstance(connection, EmailCache):
+                continue
+            _LOG.warning('updating %s', connection)
+            connection.update()
 
     def run(self):
         self._connections.connect_all()

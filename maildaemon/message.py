@@ -40,7 +40,7 @@ def recode_timezone_info(dt: datetime.datetime):
     offset = dt.utcoffset()
     offset = ('+' if offset >= datetime.timedelta() else '') + str(offset.total_seconds() / 3600)
 
-    if name is None or len(name) == 0:
+    if name is None or not name:
         return 'UTC{}{}'.format(offset, dst)
 
     return '{} (UTC{}{})'.format(name, offset, dst)
@@ -52,10 +52,7 @@ class Message:
     @classmethod
     def from_email_message(cls, msg: email.message.EmailMessage, server: Connection = None,
                            folder: str = None, msg_id: int = None):
-
-        m = cls(msg, server, folder, msg_id)
-
-        return m
+        return cls(msg, server, folder, msg_id)
 
     def __init__(self, msg=None, server=None, folder=None, msg_id=None):
 
@@ -197,14 +194,14 @@ class Message:
 
     def move_to(self, server: Connection, folder: str) -> None:
         """Move message to a specific folder on a specific server."""
-        if server is self._origin_server:
-            if folder == self._origin_folder:
-                _LOG.debug('move_to() destination same as origin, nothing to do')
-            _LOG.error('move_to() not implemented moving within same server')
-            raise NotImplementedError()
-        else:
+        if server is not self._origin_server:
             _LOG.error('move_to() not implemented moving between servers')
             raise NotImplementedError()
+        if folder == self._origin_folder:
+            _LOG.debug('move_to() destination same as origin, nothing to do')
+            return
+        _LOG.error('move_to() not implemented moving within same server')
+        raise NotImplementedError()
 
     def copy_to(self, server: Connection, folder: str) -> None:
         raise NotImplementedError()
