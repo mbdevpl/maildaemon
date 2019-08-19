@@ -8,6 +8,7 @@ import typing as t
 
 from .message import Message
 from .connection import Connection
+from .filter_actions import move
 
 _LOG = logging.getLogger(__name__)
 
@@ -33,11 +34,6 @@ In such mapping:
 Every operator is meant to create and return one-argument function that applies a predicate
 on its argument.
 """
-
-
-def move(message, imap_daemon, folder):
-    return imap_daemon.move_message(message, folder)
-
 
 ACTIONS = {
     'mark': lambda message, imap_daemon, flag: imap_daemon.set_flag(message, flag),
@@ -77,8 +73,7 @@ class MessageFilter:
 
         connections = []
         for connection_name in connection_names:
-            connection = named_connections[connection_name]
-            connections.append(connection)
+            connections.append(named_connections[connection_name])
 
         condition = eval(FILTER_CODE.format(data['condition']))
 
