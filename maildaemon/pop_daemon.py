@@ -42,7 +42,7 @@ class POPDaemon(Daemon, POPConnection):
             for defect in email_message.defects:
                 _LOG.error('%s: message #%i has defect: %s', self, message_id, defect)
 
-        return Message.from_email_message(email_message, self, None, message_id)
+        return Message(email_message, self, None, message_id)
 
     def _update_messages(self):
         message_ids = self.retrieve_message_ids()

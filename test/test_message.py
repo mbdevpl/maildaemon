@@ -34,7 +34,7 @@ class Tests(unittest.TestCase):
         messages_data = connection.retrieve_messages_parts([message_id], ['BODY.PEEK[]'], folder)
         connection.disconnect()
         _, body = messages_data[0]
-        message = Message.from_email_message(email.message_from_bytes(body), connection, folder, 1)
+        message = Message(email.message_from_bytes(body), connection, folder, 1)
         _LOG.debug('%s', message.from_address)
         _LOG.debug('%s', message.subject)
         self.assertGreater(len(message.from_address), 0)

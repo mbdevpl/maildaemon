@@ -155,7 +155,7 @@ class IMAPCache(EmailCache, IMAPConnection):
                 _LOG.error('%s: message #%i in "%s" has defects: %s',
                            self, message_id, self._folder, email_message.defects)
 
-            message = Message.from_email_message(email_message, self, self._folder, message_id)
+            message = Message(email_message, self, self._folder, message_id)
             messages.append(message)
 
         return messages

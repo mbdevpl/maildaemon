@@ -39,7 +39,7 @@ class IMAPConnection(Connection):
         else:
             self._link = imaplib.IMAP4(self.domain, self.port)
 
-        self._folder = None
+        self._folder = None  # type: str
 
     def connect(self) -> None:
         """Use imaplib.login() command."""
@@ -190,7 +190,7 @@ class IMAPConnection(Connection):
 
         :param message_ids: list of message identifiers
         :param parts: list of one or more of the following parts defined in the standard:
-          'UID', 'ENVELOPE', 'FLAGS', 'RFC822','BODY', 'BODY.PEEK[]', etc.
+          'UID', 'ENVELOPE', 'FLAGS', 'RFC822', 'BODY', 'BODY.PEEK[HEADER]', 'BODY.PEEK[]', etc.
         :param folder: optional, uses currently open folder if none provided, and opens default
           folder if none is opened
 

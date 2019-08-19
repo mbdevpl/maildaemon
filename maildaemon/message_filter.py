@@ -181,6 +181,8 @@ class MessageFilter:
     def apply_unconditionally(self, message: Message):
         """Apply actions of this filter to the given message ignoring the conditions."""
         for action, args in self._actions:
+            if action is not move:
+                raise RuntimeError('refusing to execute untested action')
             action(message, *args)
 
     def apply_to(self, message: Message):

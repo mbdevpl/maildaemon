@@ -49,12 +49,10 @@ def recode_timezone_info(dt: datetime.datetime):
 class Message:
     """An e-mail message."""
 
-    @classmethod
-    def from_email_message(cls, msg: email.message.EmailMessage, server: Connection = None,
-                           folder: str = None, msg_id: int = None):
-        return cls(msg, server, folder, msg_id)
-
-    def __init__(self, msg=None, server=None, folder=None, msg_id=None):
+    def __init__(self, msg: email.message.EmailMessage = None, server: Connection = None,
+                 folder: str = None, msg_id: int = None):
+        assert folder is None or isinstance(folder, str), type(folder)
+        assert msg_id is None or isinstance(msg_id, int), type(msg_id)
 
         self._email_message = msg  # type: email.message.EmailMessage
         self._origin_server = server  # type: Connection
@@ -196,12 +194,12 @@ class Message:
             return
         self.contents.append(text)
 
-    def move_to(self, server: Connection, folder: str) -> None:
+    def move_to(self, server: Connection, folder_name: str) -> None:
         """Move message to a specific folder on a specific server."""
         if server is not self._origin_server:
             _LOG.error('move_to() not implemented moving between servers')
             raise NotImplementedError()
-        if folder == self._origin_folder:
+        if folder_name == self._origin_folder:
             _LOG.debug('move_to() destination same as origin, nothing to do')
             return
         _LOG.error('move_to() not implemented moving within same server')
