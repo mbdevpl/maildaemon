@@ -1,3 +1,4 @@
+"""Filter that is applied on e-mail messages."""
 
 import functools
 import logging
@@ -33,9 +34,14 @@ Every operator is meant to create and return one-argument function that applies 
 on its argument.
 """
 
+
+def move(message, imap_daemon, folder):
+    return imap_daemon.move_message(message, folder)
+
+
 ACTIONS = {
     'mark': lambda message, imap_daemon, flag: imap_daemon.set_flag(message, flag),
-    'move': lambda message, imap_daemon, folder: imap_daemon.move_message(message, folder),
+    'move': move,
     'copy': lambda message, imap_daemon, folder: imap_daemon.copy_message(message, folder),
     'delete': None,
     'reply': None,
@@ -126,23 +132,29 @@ class MessageFilter:
         actions = []
         for action_string in action_strings:
             _LOG.debug('parsing action: %s', action_string)
-            operation, _, args = action_string.partition(':')
+            operation, _, raw_args = action_string.partition(':')
             try:
                 action = ACTIONS[operation]
-            except KeyError as err:
+            except KeyError:
                 _LOG.exception('action "%s" consists of invalid operation "%s"',
                                action_string, operation)
                 raise RuntimeError('cannot construct the filter with invalid action')
-            _LOG.debug('parsed to operation %s, args: %s (mapped to action %s)',
-                       operation, args, action)
-            actions.append(action)
+            if action is move:
+                connection, _, folder = raw_args.partition('/')
+                args = (named_connections[connection], folder)
+            else:
+                raise NotImplementedError(
+                    'parsing args for action "{}" is not implemented yet'.format(operation))
+            _LOG.debug('parsed to operation %s (mapped to action %s), args: %s',
+                       operation, action, args)
+            actions.append((action, args))
 
         return cls(connections, condition, actions)
 
     def __init__(
             self, connections: t.List[Connection],
             condition: t.List[t.List[t.Tuple[str, t.Callable[[str], bool]]]],
-            actions: t.List[t.Callable[[t.Any], None]]):
+            actions: t.List[t.Tuple[t.Callable[[t.Any], None], t.Sequence[t.Any]]]):
         self._connections = connections
         self._condition = condition
         self._actions = actions
@@ -170,3 +182,21 @@ class MessageFilter:
 
         return False
         '''
+
+    def apply_unconditionally(self, message: Message):
+        """Apply actions of this filter to the given message ignoring the conditions."""
+        for action, args in self._actions:
+            action(message, *args)
+
+    def apply_to(self, message: Message):
+        """Apply filter on the message if it satisfies the filter conditions."""
+        if self.applies_to(message):
+            self.apply_unconditionally(message)
+
+    def __str__(self):
+        return str({
+            'connections': self._connections,
+            'condition': self._condition,
+            'actions': [
+                '{}(message, {})'.format(action.__name__, ', '.join([str(arg) for arg in args]))
+                for action, args in self._actions]})
