@@ -197,13 +197,11 @@ class Message:
     def move_to(self, server: Connection, folder_name: str) -> None:
         """Move message to a specific folder on a specific server."""
         if server is not self._origin_server:
-            _LOG.error('move_to() not implemented moving between servers')
-            raise NotImplementedError()
+            raise NotImplementedError('move_to() not implemented moving between servers')
         if folder_name == self._origin_folder:
             _LOG.debug('move_to() destination same as origin, nothing to do')
             return
-        _LOG.error('move_to() not implemented moving within same server')
-        raise NotImplementedError()
+        raise NotImplementedError('move_to() not implemented moving within same server')
 
     def copy_to(self, server: Connection, folder: str) -> None:
         raise NotImplementedError()

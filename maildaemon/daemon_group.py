@@ -49,6 +49,7 @@ class DaemonGroup:
                         if not message_filter.applies_to(message):
                             continue
                         _LOG.warning('filter %s applies to:\n%s', message_filter, message)
+                        message_filter.apply_unconditionally(message)
 
     def run(self):
         self._connections.connect_all()
