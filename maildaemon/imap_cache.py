@@ -23,10 +23,6 @@ class IMAPCache(EmailCache, IMAPConnection):
         EmailCache.__init__(self)
         IMAPConnection.__init__(self, domain, ssl, port)
 
-        # self.folders = []  # type: t.List[str]
-        # self.message_ids = {}  # type: t.Mapping[str, t.List[int]]
-        # self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
-
     def update_folders(self):
         folders = dict(self.retrieve_folders_with_flags())
 
@@ -49,7 +45,7 @@ class IMAPCache(EmailCache, IMAPConnection):
         try:
             self.open_folder(folder.name)
         except RuntimeError:
-            _LOG.warning('%s: skipping folder "%s"', self, folder)
+            _LOG.exception('%s: skipping folder "%s"', self, folder)
             return
 
         assert folder.name == self._folder, (self._folder)
