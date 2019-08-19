@@ -11,6 +11,9 @@ from .imap_connection import IMAPConnection
 
 _LOG = logging.getLogger(__name__)
 
+HEADER_ONLY_IGNORED_DEFECTS = (
+    email.errors.StartBoundaryNotFoundDefect, email.errors.MultipartInvariantViolationDefect)
+
 
 class IMAPCache(EmailCache, IMAPConnection):
     """E-mail cache working with IMAP connections."""
@@ -144,10 +147,13 @@ class IMAPCache(EmailCache, IMAPConnection):
         messages = []
         for message_id, (_, body) in zip(message_ids, messages_data):
             email_message = email.message_from_bytes(body)
+            if headers_only:
+                email_message.defects = [
+                    defect for defect in email_message.defects
+                    if not isinstance(defect, HEADER_ONLY_IGNORED_DEFECTS)]
             if email_message.defects:
-                for defect in email_message.defects:
-                    _LOG.error('%s: message #%i in "%s" has defect: %s',
-                               self, message_id, self._folder, defect)
+                _LOG.error('%s: message #%i in "%s" has defects: %s',
+                           self, message_id, self._folder, email_message.defects)
 
             message = Message.from_email_message(email_message, self, self._folder, message_id)
             messages.append(message)
