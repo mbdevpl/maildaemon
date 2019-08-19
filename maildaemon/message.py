@@ -201,7 +201,9 @@ class Message:
         if folder_name == self._origin_folder:
             _LOG.debug('move_to() destination same as origin, nothing to do')
             return
-        raise NotImplementedError('move_to() not implemented moving within same server')
+        from .imap_connection import IMAPConnection
+        assert isinstance(server, IMAPConnection), type(server)
+        server.move_messages([self._origin_id], folder_name, self._origin_folder)
 
     def copy_to(self, server: Connection, folder: str) -> None:
         raise NotImplementedError()
