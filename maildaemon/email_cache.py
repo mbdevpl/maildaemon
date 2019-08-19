@@ -11,13 +11,13 @@ class EmailCache(metaclass=abc.ABCMeta):
     """An object that stores e-mail messages."""
 
     def __init__(self):
-        self.folders = []  # type: t.List[Folder]
+        self.folders = {}  # type: t.Dict[str, Folder]
         # self.message_ids = {}  # type: t.Mapping[str, t.List[int]]
         # self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
 
     @abc.abstractmethod
     def update_folders(self):
-        """Rebuild the folders tree."""
+        """Rebuild the folders dictionary."""
         ...
 
     # @abc.abstractmethod
@@ -30,7 +30,7 @@ class EmailCache(metaclass=abc.ABCMeta):
     #     pass
 
     def update_messages(self):
-        for folder in self.folders:
+        for _, folder in self.folders.items():
             self.update_messages_in(folder)
 
     @abc.abstractmethod

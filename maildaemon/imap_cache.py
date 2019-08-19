@@ -28,20 +28,20 @@ class IMAPCache(EmailCache, IMAPConnection):
         # self.messages = {}  # type: t.Mapping[t.Tuple[str, int], Message]
 
     def update_folders(self):
-        folder_names = self.retrieve_folders()
+        folders = dict(self.retrieve_folders_with_flags())
 
-        for folder in self.folders:
-            if folder.name not in folder_names:
-                _LOG.warning('%s: folder "%s" was deleted', self, folder)
-                self.folders.remove(folder)
-                # for message_id in self.message_ids[folder]:
-                #     del self.messages[folder, message_id]
-                # del self.message_ids[folder]
+        for name, folder in self.folders.items():
+            if name not in folders:
+                _LOG.warning('%s: folder %s was deleted', self, folder)
+                del self.folders[name]
+            elif folder.flags ^ folders[name]:
+                _LOG.warning('%s: folder %s flags changed into %s', self, folder, folders[name])
+                folder._flags = folders[name]
 
-        for folder in folder_names:
-            if folder not in self.folders:
-                _LOG.info('%s: new folder "%s" found', self, folder)
-                self.folders.append(Folder(folder))
+        for folder_name, flags in folders.items():
+            if folder_name not in self.folders:
+                _LOG.info('%s: new folder "%s" found', self, folder_name)
+                self.folders[folder_name] = Folder(self, folder_name, flags)
 
     def update_messages_in(self, folder: Folder):
         if folder.name != 'INBOX':

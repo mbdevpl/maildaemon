@@ -87,7 +87,7 @@ class IMAPConnection(Connection):
             raise RuntimeError('namespace() status: "{}"'.format(status))
     '''
 
-    def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.List[str]]]:
+    def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.Set[str]]]:
         """Use imaplib.list() command."""
         status = None
         try:
@@ -109,8 +109,9 @@ class IMAPConnection(Connection):
             *raw_flags, _, folder_name = shlex.split(folder)
             flag_str = raw_flags if isinstance(raw_flags, str) else ' '.join(raw_flags)
             flag_str = flag_str[1:-1]
-            flags = flag_str.split()
-            _LOG.debug('%s: folder "%s" has flags %s', self, folder_name, flags)
+            flags = set(flag_str.split())
+            if flags:
+                _LOG.debug('%s: folder "%s" has flags %s', self, folder_name, flags)
             folders_with_flags.append((folder_name, flags))
 
         return folders_with_flags

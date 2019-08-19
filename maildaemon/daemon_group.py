@@ -43,7 +43,7 @@ class DaemonGroup:
             if not isinstance(connection, EmailCache):
                 continue
             _LOG.warning('filtering messages in "%s": %s', name, connection)
-            for folder in connection.folders:
+            for folder in connection.folders.values():
                 for message in folder.messages:
                     for message_filter in self._filters:
                         if not message_filter.applies_to(message):

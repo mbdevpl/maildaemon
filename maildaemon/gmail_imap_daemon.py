@@ -31,7 +31,7 @@ class GmailIMAPDaemon(IMAPDaemon):
 
     def update_folders(self):
         super().update_folders()
+        del self.folders['[Gmail]']
         _LOG.info('%s: unusable folder "%s" was deleted', self, '[Gmail]')
-        self.folders.remove('[Gmail]')
 
     # TODO: handling of duplicate messages that occur because of Gmail tags
