@@ -89,10 +89,14 @@ class Message:
 
     @property
     def date(self):
+        if self.datetime is None:
+            return None
         return self.datetime.date()
 
     @property
     def time(self):
+        if self.datetime is None:
+            return None
         return self.datetime.time()
 
     def _init_headers_from_email_message(self, msg: email.message.EmailMessage) -> None:
@@ -108,7 +112,7 @@ class Message:
         elif key == 'To':
             self.to_address, self.to_name = split_name_and_address(str(recode_header(value)))
         elif key == 'Subject':
-            self.subject = recode_header(value)
+            self.subject = str(recode_header(value))
         elif key == 'Date':
             try:
                 _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
