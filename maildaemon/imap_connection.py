@@ -169,7 +169,7 @@ class IMAPConnection(Connection):
         status = None
         try:
             with _TIME.measure('retrieve_message_ids') as timer:
-                status, response = self._link.search(None, 'ALL')
+                status, response = self._link.uid('search', None, 'ALL')
             _LOG.info(
                 '%s: search(%s, %s) completed in %fs status: %s, response: %s',
                 self, None, 'ALL', timer.elapsed, status, [r.decode() for r in response])
@@ -208,8 +208,8 @@ class IMAPConnection(Connection):
         status = None
         try:
             with _TIME.measure('retrieve_messages_parts') as timer:
-                status, messages_data = self._link.fetch(
-                    ','.join([str(message_id) for message_id in message_ids]),
+                status, messages_data = self._link.uid(
+                    'fetch', ','.join([str(message_id) for message_id in message_ids]),
                     '({})'.format(' '.join(parts)))
             _LOG.info(
                 '%s: fetch(%s, %s) completed in %fs status: %s, len(messages_data): %i',
@@ -280,8 +280,8 @@ class IMAPConnection(Connection):
         command = '{}FLAGS{}'.format(command_prefix, command_suffix)
 
         try:
-            status, response = self._link.store(
-                ','.join([str(message_id) for message_id in message_ids]), command,
+            status, response = self._link.uid(
+                'store', ','.join([str(message_id) for message_id in message_ids]), command,
                 '({})'.format(' '.join(['\\{}'.format(flag) for flag in flags])))
             _LOG.info(
                 '%s: store(%s, %s, %s) status: %s, response: %s',
@@ -326,12 +326,13 @@ class IMAPConnection(Connection):
 
         status = None
         try:
-            status, response = self._link.copy(
-                ','.join([str(message_id) for message_id in message_ids]),
+            status, response = self._link.uid(
+                'copy', ','.join([str(message_id) for message_id in message_ids]),
                 '"{}"'.format(target_folder))
             _LOG.info(
                 '%s: copy(%s, "%s") status: %s, response: %s',
-                self, message_ids, target_folder, status, [r.decode() for r in response])
+                self, message_ids, target_folder, status,
+                [r.decode() if isinstance(r, bytes) else r for r in response])
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: copy(%s, "%s") failed', self, message_ids, target_folder)
             raise RuntimeError('copy_messages() failed') from err
