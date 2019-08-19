@@ -11,11 +11,12 @@ _LOG = logging.getLogger(__name__)
 class Folder:
     """For storing messages."""
 
-    def __init__(self, name: str, flags: t.Sequence[str] = None):
+    def __init__(self, connection: 'Connection', name: str, flags: t.Sequence[str] = None):
         if flags is None:
-            flags = []
+            flags = set()
+        self._connection = connection  # type: Connection
         self._name = name  # type: str
-        self._flags = flags  # type: t.List[str]
+        self._flags = set(flags)  # type: t.Set[str]
         self._messages = set()  # type: t.Set[Message]
         self._subfolders = set()  # type: t.Set[Folder]
 
@@ -24,7 +25,7 @@ class Folder:
         return self._name
 
     @property
-    def flags(self):
+    def flags(self) -> t.Set[str]:
         return self._flags
 
     @property
