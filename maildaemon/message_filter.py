@@ -55,8 +55,7 @@ Every action is meant to create and return one-argument function that performs a
 involving a and possibly other entities.
 """
 
-FILTER_CODE = 'lambda from_address, from_name, to_address, to_name, subject,' \
-    ' datetime, date, time: {}'
+FILTER_CODE = 'lambda message: {}'
 
 
 class MessageFilter:
@@ -113,9 +112,7 @@ class MessageFilter:
         self._actions = actions
 
     def applies_to(self, message: Message) -> bool:
-        return self._condition(
-            message.from_address, message.from_name, message.to_address, message.to_name,
-            message.subject, message.datetime, message.date, message.time)
+        return self._condition(message)
 
     def apply_unconditionally(self, message: Message):
         """Apply actions of this filter to the given message ignoring the conditions."""
