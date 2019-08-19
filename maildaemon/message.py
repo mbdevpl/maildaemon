@@ -30,7 +30,6 @@ def split_name_and_address(text) -> tuple:
 
 
 def recode_timezone_info(dt: datetime.datetime):
-
     name = dt.tzname()
     dst = dt.dst()
     dst = (' ' + dst) if dst != datetime.timedelta() else ''
@@ -48,7 +47,6 @@ def recode_timezone_info(dt: datetime.datetime):
 
 
 class Message:
-
     """An e-mail message."""
 
     @classmethod
@@ -57,87 +55,6 @@ class Message:
 
         m = cls(msg, server, folder, msg_id)
 
-        for key, value in msg.items():
-            if key == 'From':
-                m.from_address, m.from_name = split_name_and_address(str(recode_header(value)))
-            elif key == 'Reply-To':
-                m.reply_to_address, m.reply_to_name = split_name_and_address(
-                    str(recode_header(value)))
-            elif key == 'To':
-                m.to_address, m.to_name = split_name_and_address(str(recode_header(value)))
-            elif key == 'Subject':
-                m.subject = recode_header(value)
-            elif key == 'Date':
-                try:
-                    _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
-                    m.datetime = _datetime
-                    m.timezone = recode_timezone_info(_datetime)
-                except ValueError:
-                    _LOG.exception('dateutil failed to parse string "%s" into a date/time', value)
-                    m.datetime = None
-                    m.timezone = None
-            elif key == 'Received':
-                m.received.append(value)
-            elif key == 'Return-Path':
-                m.return_path = value
-            elif key == 'Envelope-To':
-                m.envelope_to = value
-            elif key == 'Message-Id':
-                m.message_id = value
-            elif key == 'Content-Type':
-                m.content_type = value
-            else:
-                m.other_headers.append((key, value))
-
-        _parts = msg.get_payload() if msg.is_multipart() else [msg]
-        for part in _parts:
-            content_type = part.get_content_type()
-            if content_type == 'multipart/alternative':
-                subparts = part.get_payload()
-                assert isinstance(subparts, list), type(subparts)
-                assert len(subparts) > 0
-                if len(subparts) > 1:
-                    _LOG.warning('taking last alternative of %i available in part type %s'
-                                 ' - ignoring others', len(subparts), content_type)
-                part = subparts[-1]
-                content_type = part.get_content_type()
-            elif content_type == 'multipart/related':
-                subparts = part.get_payload()
-                assert isinstance(subparts, list), type(subparts)
-                assert len(subparts) > 0
-                if len(subparts) > 1:
-                    _LOG.warning('taking only first part of %i available in part type %s'
-                                 ' - ignoring related parts', len(subparts), content_type)
-                part = subparts[0]
-                content_type = part.get_content_type()
-            if content_type not in {'text/plain', 'text/html'}:
-                _LOG.info('treating message part with type %s as attachment', content_type)
-                m.attachments.append(part)
-                continue
-            charset = part.get_content_charset()
-            if charset:
-                text = part.get_payload(decode=True)
-                try:
-                    text = text.decode(charset)
-                except UnicodeDecodeError:
-                    _LOG.exception('failed to decode %i-character text using encoding "%s"',
-                                   len(text), charset)
-            else:
-                text = part.get_payload()
-                try:
-                    if isinstance(text, bytes):
-                        text = text.decode('utf-8')
-                except UnicodeDecodeError:
-                    _LOG.exception('failed to decode %i-character text using encoding "%s"',
-                                   len(text), 'utf-8')
-                if not isinstance(text, str):
-                    _LOG.error('no content charset in a message %s in part %s -- attachment?',
-                               m.str_headers_compact(), part.as_bytes()[:128])
-                    m.attachments.append(part)
-                    text = None
-            if not text:
-                continue
-            m.contents.append(text)
         return m
 
     def __init__(self, msg=None, server=None, folder=None, msg_id=None):
@@ -169,6 +86,10 @@ class Message:
         self.contents = []
         self.attachments = []
 
+        if msg is not None:
+            self._init_headers_from_email_message(msg)
+            self._init_contents_from_email_message(msg)
+
     @property
     def date(self):
         return self.datetime.date()
@@ -176,6 +97,103 @@ class Message:
     @property
     def time(self):
         return self.datetime.time()
+
+    def _init_headers_from_email_message(self, msg: email.message.EmailMessage) -> None:
+        for key, value in msg.items():
+            self._init_header_from_keyvalue(key, value)
+
+    def _init_header_from_keyvalue(self, key: str, value: str) -> None:
+        if key == 'From':
+            self.from_address, self.from_name = split_name_and_address(str(recode_header(value)))
+        elif key == 'Reply-To':
+            self.reply_to_address, self.reply_to_name = split_name_and_address(
+                str(recode_header(value)))
+        elif key == 'To':
+            self.to_address, self.to_name = split_name_and_address(str(recode_header(value)))
+        elif key == 'Subject':
+            self.subject = recode_header(value)
+        elif key == 'Date':
+            try:
+                _datetime = dateutil.parser.parse(value)  # type: datetime.datetime
+                self.datetime = _datetime
+                self.timezone = recode_timezone_info(_datetime)
+            except ValueError:
+                _LOG.exception('dateutil failed to parse string "%s" into a date/time', value)
+        elif key == 'Received':
+            self.received.append(value)
+        elif key == 'Return-Path':
+            self.return_path = value
+        elif key == 'Envelope-To':
+            self.envelope_to = value
+        elif key == 'Message-Id':
+            self.message_id = value
+        elif key == 'Content-Type':
+            self.content_type = value
+        else:
+            self.other_headers.append((key, value))
+
+    def _init_contents_from_email_message(self, msg: email.message.EmailMessage) -> None:
+        if not msg.get_payload():
+            return
+        if msg.get_content_maintype() != 'multipart':
+            self._init_contents_part(msg)
+            return
+        content_type = msg.get_content_type()
+        parts = msg.get_payload()
+        if isinstance(parts, str):
+            _LOG.error('one of %i parts in a message is %s, but it has no subparts',
+                       len(parts), content_type)
+            assert not parts, parts
+            return
+        assert isinstance(parts, list), type(parts)
+        assert parts
+        if content_type == 'multipart/alternative':
+            if len(parts) > 1:
+                _LOG.warning('taking last alternative of %i available in part type %s'
+                             ' - ignoring others', len(parts), content_type)
+            self._init_contents_from_email_message(parts[-1])
+        elif content_type == 'multipart/related':
+            if len(parts) > 1:
+                _LOG.warning('taking only first part of %i available in part type %s'
+                             ' - ignoring related parts', len(parts), content_type)
+            self._init_contents_from_email_message(parts[0])
+        elif content_type == 'multipart/mixed':
+            for part in parts:
+                self._init_contents_from_email_message(part)
+        else:
+            raise NotImplementedError(
+                'handling of "{}" not implemented'.format(content_type))
+
+    def _init_contents_part(self, part: email.message.Message):
+        content_type = part.get_content_type()
+        if content_type not in {'text/plain', 'text/html'}:
+            _LOG.info('treating message part with type %s as attachment', content_type)
+            self.attachments.append(part)
+            return
+        charset = part.get_content_charset()
+        if charset:
+            text = part.get_payload(decode=True)
+            try:
+                text = text.decode(charset)
+            except UnicodeDecodeError:
+                _LOG.exception('failed to decode %i-character text using encoding "%s"',
+                               len(text), charset)
+        else:
+            text = part.get_payload()
+            try:
+                if isinstance(text, bytes):
+                    text = text.decode('utf-8')
+            except UnicodeDecodeError:
+                _LOG.exception('failed to decode %i-character text using encoding "%s"',
+                               len(text), 'utf-8')
+            if not isinstance(text, str):
+                _LOG.error('no content charset in a message %s in part %s -- attachment?',
+                           self.str_headers_compact(), part.as_bytes()[:128])
+                self.attachments.append(part)
+                text = None
+        if not text:
+            return
+        self.contents.append(text)
 
     def move_to(self, server: Connection, folder: str) -> None:
         """Move message to a specific folder on a specific server."""
