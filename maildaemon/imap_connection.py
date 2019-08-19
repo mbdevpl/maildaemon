@@ -6,9 +6,12 @@ import shlex
 import socket
 import typing as t
 
+import timing
+
 from .connection import Connection
 
 _LOG = logging.getLogger(__name__)
+_TIME = timing.get_timing_group(__name__)
 
 TIMEOUT = 10
 
@@ -164,10 +167,11 @@ class IMAPConnection(Connection):
 
         status = None
         try:
-            status, response = self._link.search(None, 'ALL')
+            with _TIME.measure('retrieve_message_ids') as timer:
+                status, response = self._link.search(None, 'ALL')
             _LOG.info(
-                '%s: search(%s, %s) status: %s, response: %s',
-                self, None, 'ALL', status, [r.decode() for r in response])
+                '%s: search(%s, %s) completed in %fs status: %s, response: %s',
+                self, None, 'ALL', timer.elapsed, status, [r.decode() for r in response])
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: search(%s, %s) failed', self, None, 'ALL')
             raise RuntimeError('retrieve_message_ids() failed') from err
@@ -202,12 +206,13 @@ class IMAPConnection(Connection):
 
         status = None
         try:
-            status, messages_data = self._link.fetch(
-                ','.join([str(message_id) for message_id in message_ids]),
-                '({})'.format(' '.join(parts)))
+            with _TIME.measure('retrieve_messages_parts') as timer:
+                status, messages_data = self._link.fetch(
+                    ','.join([str(message_id) for message_id in message_ids]),
+                    '({})'.format(' '.join(parts)))
             _LOG.info(
-                '%s: fetch(%s, %s) status: %s, len(messages_data): %i',
-                self, message_ids, parts, status, len(messages_data))
+                '%s: fetch(%s, %s) completed in %fs status: %s, len(messages_data): %i',
+                self, message_ids, parts, timer.elapsed, status, len(messages_data))
             # _LOG.debug('data: %s', data) # large output
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: fetch(%s, %s) failed', self, message_ids, parts)
