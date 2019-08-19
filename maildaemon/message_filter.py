@@ -77,48 +77,6 @@ class MessageFilter:
 
         condition = eval(FILTER_CODE.format(data['condition']))
 
-        """
-        try:
-            disjunction = data['condition']
-        except KeyError:
-            disjunction = []
-
-        condition = []
-        if len(disjunction) > 1:
-            _LOG.debug('[')
-        for i, disjunct in enumerate(disjunction):
-            if i > 0:
-                _LOG.debug('] or [')
-            if len(disjunct) > 1:
-                _LOG.debug('(')
-            conjunction = []
-            for j, conjunct in enumerate(disjunct):
-                if j > 0:
-                    _LOG.debug(') and (')
-                _LOG.debug('parsing expression: %s', conjunct)
-                variable, _, operator_and_arg = conjunct.partition(':')
-                operator_ = operator_and_arg[:2]
-                arg = operator_and_arg[2:]
-                try:
-                    op_function = CONDITION_OPERATORS[operator_](arg)
-                except KeyError:
-                    operator_ = operator_and_arg[:1]
-                    arg = operator_and_arg[1:]
-                    try:
-                        op_function = CONDITION_OPERATORS[operator_](arg)
-                    except KeyError as err:
-                        raise RuntimeError() from err
-                _LOG.debug(
-                    'parsed to e-mail variable: "%s", operator: %s, argument: "%s" (mapped to %s)',
-                    variable, operator_, arg, op_function)
-                conjunction.append((variable, op_function))
-            condition.append(conjunction)
-            if len(disjunct) > 1:
-                _LOG.debug(')')
-        if len(disjunction) > 1:
-            _LOG.debug(']')
-        """
-
         try:
             action_strings = data['actions']
         except KeyError:
@@ -158,25 +116,6 @@ class MessageFilter:
         return self._condition(
             message.from_address, message.from_name, message.to_address, message.to_name,
             message.subject, message.datetime, message.date, message.time)
-        '''
-        for conjunction in self._condition:
-            conjunction_satisfied = True
-            for arg, predicate in conjunction:
-                try:
-                    attr_value = getattr(message, arg)
-                except AttributeError:
-                    _LOG.exception(
-                        'cannot apply predicate %s in conjunction %s', predicate, conjunction)
-                    conjunction_satisfied = False
-                    break
-                if not predicate(attr_value):
-                    conjunction_satisfied = False
-                    break
-            if conjunction_satisfied:
-                return True
-
-        return False
-        '''
 
     def apply_unconditionally(self, message: Message):
         """Apply actions of this filter to the given message ignoring the conditions."""

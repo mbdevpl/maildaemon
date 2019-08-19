@@ -60,14 +60,14 @@ class Message:
         self._origin_folder = folder  # type: str
         self._origin_id = msg_id  # type: int
 
-        self.from_address = None
-        self.from_name = None
-        self.reply_to_address = None
-        self.reply_to_name = None
-        self.to_address = None
-        self.to_name = None
-        self.subject = None
-        self.datetime = None
+        self.from_address = None  # type: str
+        self.from_name = None  # type: str
+        self.reply_to_address = None  # type: str
+        self.reply_to_name = None  # type: str
+        self.to_address = None  # type: str
+        self.to_name = None  # type: str
+        self.subject = None  # type: str
+        self.datetime = None  # type: datetime.datetime
         self.timezone = None
         self.local_date = None
         self.local_time = None
@@ -88,13 +88,13 @@ class Message:
             self._init_contents_from_email_message(msg)
 
     @property
-    def date(self):
+    def date(self) -> datetime.date:
         if self.datetime is None:
             return None
         return self.datetime.date()
 
     @property
-    def time(self):
+    def time(self) -> datetime.time:
         if self.datetime is None:
             return None
         return self.datetime.time()
