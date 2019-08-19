@@ -30,10 +30,10 @@ class DaemonGroup:
     #    self._filters.append(message_filter)
 
     def update(self):
-        for connection in self._connections:
+        for name, connection in self._connections.items():
             if not isinstance(connection, EmailCache):
                 continue
-            _LOG.warning('updating %s', connection)
+            _LOG.warning('updating "%s": %s', name, connection)
             connection.update()
 
     def run(self):
