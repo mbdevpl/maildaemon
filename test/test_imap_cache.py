@@ -6,7 +6,7 @@ import pathlib
 import unittest
 
 from maildaemon.config import load_config
-from maildaemon.imap_daemon import IMAPDaemon
+from maildaemon.imap_cache import IMAPCache
 
 _LOG = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
     def test_update_folders(self):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
-                c = IMAPDaemon.from_dict(self.config['connections'][connection_name])
+                c = IMAPCache.from_dict(self.config['connections'][connection_name])
                 c.connect()
                 c.update_folders()
                 folder = c.folders[-1]
@@ -35,7 +35,7 @@ class Tests(unittest.TestCase):
         for connection_name in ['test-imap', 'test-imap-ssl']:
             with self.subTest(msg=connection_name):
                 # import time; time.sleep(2)
-                c = IMAPDaemon.from_dict(self.config['connections'][connection_name])
+                c = IMAPCache.from_dict(self.config['connections'][connection_name])
                 c.connect()
                 # c.update()  # TODO: there's some cryptic error in msg id 12 in INBOX
                 c.disconnect()

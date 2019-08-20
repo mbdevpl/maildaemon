@@ -8,7 +8,7 @@ import unittest
 
 from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
-from maildaemon.imap_daemon import IMAPDaemon
+from maildaemon.imap_cache import IMAPCache
 from maildaemon.message_filter import MessageFilter
 
 _LOG = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class Tests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                          'skipping test that requires server connection')
     def test_if_applies(self):
-        connection = IMAPDaemon.from_dict(self.config['connections']['test-imap'])
+        connection = IMAPCache.from_dict(self.config['connections']['test-imap'])
         connection.connect()
         msg = connection.retrieve_message(1)
         connection.disconnect()
