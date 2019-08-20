@@ -6,7 +6,7 @@ import pathlib
 import unittest
 
 from maildaemon.config import load_config
-from maildaemon.pop_daemon import POPDaemon
+from maildaemon.pop_cache import POPCache
 
 _LOG = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
     def test_update(self):
         for connection_name in ['test-pop', 'test-pop-ssl']:
             with self.subTest(msg=connection_name):
-                connection = POPDaemon.from_dict(self.config['connections'][connection_name])
+                connection = POPCache.from_dict(self.config['connections'][connection_name])
                 connection.connect()
                 connection.update()
                 connection.disconnect()

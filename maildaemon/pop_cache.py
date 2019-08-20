@@ -11,7 +11,7 @@ from .pop_connection import POPConnection
 _LOG = logging.getLogger(__name__)
 
 
-class POPDaemon(Daemon, POPConnection):
+class POPCache(Daemon, POPConnection):
 
     """Daemon working with POP connections."""
 

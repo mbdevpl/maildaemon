@@ -7,7 +7,7 @@ import ordered_set
 from .connection import Connection
 from .imap_cache import IMAPCache
 from .smtp_connection import SMTPConnection
-from .pop_daemon import POPDaemon
+from .pop_cache import POPCache
 
 _LOG = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class ConnectionGroup(t.Dict[str, Connection]):
                 connection_class = {
                     'IMAP': IMAPCache,
                     'SMTP': SMTPConnection,
-                    'POP': POPDaemon
+                    'POP': POPCache
                     }[entry['protocol']]
             except KeyError:
                 # _LOG.exception('invalid protocol: "%s"', data['protocol'])
