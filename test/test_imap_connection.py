@@ -49,8 +49,9 @@ class Tests(unittest.TestCase):
                 connection = IMAPConnection.from_dict(self.config['connections'][connection_name])
                 connection.connect()
                 connection.open_folder()
-                msgs1 = connection.retrieve_messages_parts([1, 2], ['UID', 'ENVELOPE'])
-                msgs2 = connection.retrieve_messages_parts([1, 2], ['BODY.PEEK[]'])
+                ids = connection.retrieve_message_ids()
+                msgs1 = connection.retrieve_messages_parts(ids[:2], ['UID', 'ENVELOPE'])
+                msgs2 = connection.retrieve_messages_parts(ids[:2], ['BODY.PEEK[]'])
                 connection.close_folder()
                 alive = connection.is_alive()
                 connection.disconnect()
@@ -67,11 +68,12 @@ class Tests(unittest.TestCase):
     def test_delete_message(self):
         connection = IMAPConnection.from_dict(self.config['connections']['test-imap-ssl'])
         connection.connect()
-        connection.delete_message(12, 'INBOX')
+        ids = connection.retrieve_message_ids()
+        connection.delete_message(ids[-1], 'INBOX')
         connection.purge_deleted_messages()
-        with self.assertRaises(RuntimeError):
-            connection.delete_message(12, 'INBOX')
-        connection.delete_message(9, 'INBOX', purge_immediately=True)
+        # with self.assertRaises(RuntimeError):
+        #     connection.delete_message(ids[-1], 'INBOX')
+        connection.delete_message(ids[-2], 'INBOX', purge_immediately=True)
         connection.disconnect()
 
     @unittest.skip('long')

@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
                 c = IMAPCache.from_dict(self.config['connections'][connection_name])
                 c.connect()
                 c.update_folders()
-                folder = c.folders[-1]
+                # folder = c.folders['']
                 # c.delete_folder(folder)  # TODO: implement IMAP folder deletion
                 c.update_folders()
                 c.disconnect()
