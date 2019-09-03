@@ -13,11 +13,12 @@ from .connection import Connection
 _LOG = logging.getLogger(__name__)
 
 
-def recode_header(raw_data) -> str:
+def recode_header(raw_data: t.Union[bytes, str]) -> str:
+    """Normalize the header value."""
     return email.header.make_header(email.header.decode_header(raw_data))
 
 
-def is_name_and_address(text) -> bool:
+def is_name_and_address(text: str) -> bool:
     return '<' in text and '>' in text
 
 
@@ -130,21 +131,7 @@ class Message:
         elif key == 'Subject':
             self.subject = str(recode_header(value))
         elif key == 'Date':
-            self.datetime = None
-            try:
-                self.datetime = dateutil.parser.parse(value)
-            except ValueError:
-                try:
-                    self.datetime = dateutil.parser.parse(value, fuzzy=True)
-                    _LOG.debug(
-                        'dateutil failed to parse string "%s" into a date/time,'
-                        ' using fuzzy=True results in: %s', value, self.datetime, exc_info=1)
-                except ValueError:
-                    _LOG.debug(
-                        'dateutil failed to parse string "%s" into a date/time,'
-                        ' even using fuzzy=True', value, exc_info=1)
-            if self.datetime is not None:
-                self.timezone = recode_timezone_info(self.datetime)
+            self._init_datetime_from_header_value(value)
         elif key == 'Received':
             self.received.append(value)
         elif key == 'Return-Path':
@@ -157,6 +144,23 @@ class Message:
             self.content_type = value
         else:
             self.other_headers.append((key, value))
+
+    def _init_datetime_from_header_value(self, value: str):
+        self.datetime = None
+        try:
+            self.datetime = dateutil.parser.parse(value)
+        except ValueError:
+            try:
+                self.datetime = dateutil.parser.parse(value, fuzzy=True)
+                _LOG.debug(
+                    'dateutil failed to parse string "%s" into a date/time,'
+                    ' using fuzzy=True results in: %s', value, self.datetime, exc_info=1)
+            except ValueError:
+                _LOG.debug(
+                    'dateutil failed to parse string "%s" into a date/time,'
+                    ' even using fuzzy=True', value, exc_info=1)
+        if self.datetime is not None:
+            self.timezone = recode_timezone_info(self.datetime)
 
     def _init_contents_from_email_message(self, msg: email.message.EmailMessage) -> None:
         if not msg.get_payload():
