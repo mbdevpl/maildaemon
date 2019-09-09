@@ -15,7 +15,16 @@ _LOG = logging.getLogger(__name__)
 
 def recode_header(raw_data: t.Union[bytes, str]) -> str:
     """Normalize the header value."""
-    return email.header.make_header(email.header.decode_header(raw_data))
+    decoded_data = email.header.decode_header(raw_data)
+    try:
+        return email.header.make_header(decoded_data)
+    except UnicodeDecodeError as err:
+        try:
+            return email.header.make_header([(decoded_data[0][0], 'utf-8')])
+        except:
+            _LOG.exception('both "%s" and "utf-8" fail to decode the header', decoded_data[0][1])
+        raise ValueError(f'after decoding {raw_data!r}, obtained {decoded_data!r}'
+                         ' which cannot be re-made into a header') from err
 
 
 def is_name_and_address(text: str) -> bool:
