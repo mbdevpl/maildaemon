@@ -158,8 +158,11 @@ class IMAPCache(EmailCache, IMAPConnection):
             flags = imaplib.ParseFlags(metadata)
             for raw_flag in flags:
                 flag = raw_flag.decode()
-                assert flag.startswith('\\'), (flags, flag)
-                message.flags.add(flag[1:])
+                if flag.startswith('\\'):
+                    flag = flag[1:]
+                else:
+                    _LOG.warning('atypical flag "%s" detected in "%s"', flag, flags)
+                message.flags.add(flag)
             messages.append(message)
 
         return messages
