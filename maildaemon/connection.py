@@ -16,18 +16,10 @@ class Connection(metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, data: dict) -> 'Connection':
-
-        try:
-            connection = cls(domain=data['domain'], ssl=data['ssl'], port=data['port'])
-        except KeyError:
-            try:
-                connection = cls(domain=data['domain'], ssl=data['ssl'])
-            except KeyError:
-                try:
-                    connection = cls(domain=data['domain'])
-                except KeyError:
-                    raise RuntimeError(
-                        'failed to construct {} from dictionary {}'.format(cls.__name__, data))
+        kwargs = {key: data[key] for key in ('domain', 'port', 'ssl', 'oauth') if key in data}
+        connection = cls(**kwargs)
+        if connection.oauth:
+            connection.oauth_data = data['oauth-data']
 
         try:
             connection.login = data['login']
@@ -40,10 +32,17 @@ class Connection(metaclass=abc.ABCMeta):
 
         return connection
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True,
+                 oauth: bool = False):
+        assert isinstance(domain, str), type(domain)
+        assert isinstance(port, int), type(port)
+        assert isinstance(ssl, bool), type(ssl)
+        assert isinstance(oauth, bool), type(oauth)
         self.domain = domain  # type: str
-        self.ssl = ssl  # type: bool
         self._port = port  # type: t.Optional[int]
+        self.ssl = ssl  # type: bool
+        self.oauth = oauth  # type: bool
+        self.oauth_data = None  # type: dict
 
         self._login = None  # type: t.Optional[str]
         self._password = None  # type: t.Optional[str]
@@ -73,7 +72,7 @@ class Connection(metaclass=abc.ABCMeta):
     def login(self) -> str:
         assert self._login is None or isinstance(self._login, str)
         if self._login is None:
-            print('User at {}:{}: '.format(self.domain, self.port), end='', flush=True)
+            print(f'User at {self.domain}:{self.port}: ', end='', flush=True)
             self._login = getpass.getuser()
         return self._login
 
@@ -86,9 +85,8 @@ class Connection(metaclass=abc.ABCMeta):
     def password(self) -> str:
         assert self._password is None or isinstance(self._password, str)
         if self._password is None:
-            user = 'unknown user' if self._login is None else 'user {}'.format(self.login)
-            self._password = getpass.getpass('Password for {} at {}:{}: '
-                                             .format(user, self.domain, self.port))
+            user = 'unknown user' if self._login is None else f'user {self.login}'
+            self._password = getpass.getpass(f'Password for {user} at {self.domain}:{self.port}: ')
         return self._password
 
     @password.setter
@@ -109,5 +107,5 @@ class Connection(metaclass=abc.ABCMeta):
         pass
 
     def __repr__(self):
-        args = [self.domain, str(self.port), 'SSL' if self.ssl else 'plaintext']
-        return '{}({})'.format(type(self).__name__, ', '.join(args))
+        return f'{type(self).__name__}({self.domain}:{self.port}{"+SSL" if self.ssl else ""}' \
+            f'{"+OAUTH" if self.oauth else ""})'

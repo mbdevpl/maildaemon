@@ -19,9 +19,10 @@ HEADER_ONLY_IGNORED_DEFECTS = (
 class IMAPCache(EmailCache, IMAPConnection):
     """E-mail cache working with IMAP connections."""
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True,
+                 oauth: bool = False):
         EmailCache.__init__(self)
-        IMAPConnection.__init__(self, domain, ssl, port)
+        IMAPConnection.__init__(self, domain, port, ssl, oauth)
 
     def update_folders(self):
         folders = dict(self.retrieve_folders_with_flags())

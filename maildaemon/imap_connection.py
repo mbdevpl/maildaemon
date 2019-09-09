@@ -31,8 +31,9 @@ class IMAPConnection(Connection):
     ports = [143]
     ssl_ports = [993]
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
-        super().__init__(domain, ssl, port)
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True,
+                 oauth: bool = False):
+        super().__init__(domain, port, ssl, oauth)
 
         if self.ssl:
             self._link = imaplib.IMAP4_SSL(self.domain, self.port)
