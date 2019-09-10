@@ -1,11 +1,15 @@
 """IMAP connection handling."""
 
+import datetime
 import imaplib
+import json
 import logging
+import pathlib
 import shlex
 import socket
 import typing as t
 
+from requests_oauthlib import OAuth2Session
 import timing
 
 from .connection import Connection
@@ -46,7 +50,10 @@ class IMAPConnection(Connection):
         """Use imaplib.login() command."""
         status = None
         try:
-            status, response = self._link.login(self.login, self.password)
+            if self.oauth:
+                status, response = self._connect_oauth()
+            else:
+                status, response = self._link.login(self.login, self.password)
             _LOG.info(
                 '%s: login(%s, %s) status: %s, response: %s',
                 self, self.login, '***', status, [r.decode() for r in response])
@@ -58,6 +65,58 @@ class IMAPConnection(Connection):
             raise RuntimeError('connect() failed')
 
         _LOG.debug('%s: capabilities: %s', self, self._link.capabilities)
+
+    def _connect_oauth(self) -> tuple:
+        token_path = pathlib.Path(f'token_{self._login.replace("@", "_")}.json')
+
+        token_valid = False
+        if token_path.is_file():
+            with token_path.open() as token_file:
+                token = json.load(token_file)
+
+            expiration_time = datetime.datetime.fromtimestamp(token['expires_at'])
+            if datetime.datetime.now() + datetime.timedelta(seconds=60 * 30) < expiration_time:
+                token_valid = True
+                _LOG.info('OAUTH token will expire on %s', expiration_time)
+            else:
+                _LOG.warning('OAUTH token will expire on %s', expiration_time)
+                oauth = OAuth2Session(self.oauth_data['client_id'], token=token)
+                # token['refresh_token'] is used below
+                token = oauth.refresh_token(
+                    self.oauth_data['token_uri'], client_id=self.oauth_data['client_id'],
+                    client_secret=self.oauth_data['client_secret'])
+                with token_path.open('w') as token_file:
+                    json.dump(token, token_file)
+                token_valid = True
+
+        if not token_valid:
+            oauth = OAuth2Session(
+                self.oauth_data['client_id'], redirect_uri='https://localhost/',
+                scope=self.oauth_data['scopes'])
+            authorization_url, state = oauth.authorization_url(
+                self.oauth_data['auth_uri'], **self.oauth_data['auth_uri_params'])
+            print(f'state: {state}')
+            print(f'Please go to {authorization_url} and authorize access for {self.login}.')
+            authorization_response = input('Enter the full callback URL: ')
+            token = oauth.fetch_token(
+                self.oauth_data['token_uri'],
+                authorization_response=authorization_response,
+                client_secret=self.oauth_data['client_secret'])
+            with token_path.open('w') as token_file:
+                json.dump(token, token_file)
+
+        with token_path.open() as token_file:
+            token = json.load(token_file)
+        auth_string = f'''user={self._login}\1auth=Bearer {token['access_token']}\1\1'''
+
+        def auth_handler(response: bytes):
+            _LOG.debug('auth_handler got: %s', response.decode())
+            if not response:
+                _LOG.debug('auth_handler returning: %s', auth_string)
+                return auth_string.encode()
+            return ''
+
+        return self._link.authenticate('XOAUTH2', auth_handler)
 
     def is_alive(self) -> bool:
         """Use imaplib.noop() command."""

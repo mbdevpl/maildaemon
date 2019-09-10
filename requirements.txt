@@ -1,6 +1,7 @@
 daemon
 encrypted-config
-oauth2
+oauthlib[rsa]
+oauthlib-requests
 ordered-set
 python-dateutil
 timing
