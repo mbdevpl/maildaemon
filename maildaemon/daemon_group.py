@@ -47,10 +47,13 @@ class DaemonGroup:
             _LOG.warning('filtering messages in "%s": %s', name, connection)
             for folder in connection.folders.values():
                 for message in folder.messages:
+                    if message.is_deleted:
+                        _LOG.debug('ignoring deleted message')
+                        continue
                     for message_filter in connection_filters:
                         if not message_filter.applies_to(message):
                             continue
-                        _LOG.warning('filter %s applies to:\n%s', message_filter, message)
+                        _LOG.info('filter %s applies to:\n%s', message_filter, message)
                         message_filter.apply_unconditionally(message)
                         break
 

@@ -125,6 +125,10 @@ class Message:
     def is_flagged(self) -> bool:
         return 'Flagged' in self.flags
 
+    @property
+    def is_deleted(self) -> bool:
+        return 'Deleted' in self.flags
+
     def _init_headers_from_email_message(self, msg: email.message.EmailMessage) -> None:
         for key, value in msg.items():
             self._init_header_from_keyvalue(key, value)
