@@ -43,6 +43,7 @@ class IMAPConnection(Connection):
             self._link = imaplib.IMAP4_SSL(self.domain, self.port)
         else:
             self._link = imaplib.IMAP4(self.domain, self.port)
+        # self._link.debug = 4
 
         self._folder = None  # type: str
 
@@ -393,11 +394,12 @@ class IMAPConnection(Connection):
 
         if folder is None:
             folder = self._folder
-
         self.open_folder(folder)
 
         flags = f'({" ".join(_.decode() for _ in imaplib.ParseFlags(envelope))})'
+        assert isinstance(flags, str), flags
         date = imaplib.Time2Internaldate(imaplib.Internaldate2tuple(envelope))
+        assert date is not None
 
         status = None
         try:

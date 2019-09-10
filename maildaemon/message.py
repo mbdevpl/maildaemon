@@ -236,6 +236,7 @@ class Message:
 
     def move_to(self, server: Connection, folder_name: str) -> None:
         """Move message to a specific folder on a specific server."""
+        assert isinstance(folder_name, str), type(folder_name)
         if server is not self._origin_server:
             raise NotImplementedError('move_to() not implemented moving between servers')
         if folder_name == self._origin_folder:
