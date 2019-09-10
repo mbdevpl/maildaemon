@@ -372,6 +372,46 @@ class IMAPConnection(Connection):
         """Issue "FLAGS" command."""
         self._alter_messages_flags(message_ids, flags, None, silent, folder)
 
+    def add_messages(self, messages_parts: t.List[t.Tuple[bytes, bytes]],
+                     folder: t.Optional[str] = None) -> None:
+        for message_parts in messages_parts:
+            self.add_message(message_parts, folder)
+
+    def add_message(self, message_parts: t.Tuple[bytes, bytes],
+                    folder: t.Optional[str] = None) -> None:
+        """Add a message to a folder using APPEND command.
+
+        :param message_parts: tuple (envelope: bytes, body: bytes), with both elements properly set,
+          which is exactly the same type as received via:
+          parts = retrieve_message_parts(uid, parts=['FLAGS', 'INTERNALDATE', 'BODY.PEEK[]'])
+        """
+        assert isinstance(message_parts, tuple), type(message_parts)
+        assert len(message_parts) == 2, len(message_parts)
+        envelope, body = message_parts
+        assert isinstance(envelope, bytes), type(envelope)
+        assert isinstance(body, bytes), type(body)
+
+        if folder is None:
+            folder = self._folder
+
+        self.open_folder(folder)
+
+        flags = f'({" ".join(_.decode() for _ in imaplib.ParseFlags(envelope))})'
+        date = imaplib.Time2Internaldate(imaplib.Internaldate2tuple(envelope))
+
+        status = None
+        try:
+            status, response = self._link.append(folder, flags, date, body)
+            _LOG.info('%s: append("%s", %s, "%s", ... (%i bytes)) status: %s, response: %s',
+                      self, folder, flags, date, len(body), status, [r for r in response])
+        except imaplib.IMAP4.error as err:
+            _LOG.exception('%s: append("%s", %s, "%s", ... (%i bytes)) failed',
+                           self, folder, flags, date, len(body))
+            raise RuntimeError('add_message() failed') from err
+
+        if status != 'OK':
+            raise RuntimeError('add_message() failed')
+
     def copy_messages(
             self, message_ids: t.List[int], target_folder: str,
             source_folder: t.Optional[str] = None) -> None:
