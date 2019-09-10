@@ -339,6 +339,7 @@ class IMAPConnection(Connection):
 
         command = '{}FLAGS{}'.format(command_prefix, command_suffix)
 
+        status = None
         try:
             status, response = self._link.uid(
                 'store', ','.join([str(message_id) for message_id in message_ids]), command,
@@ -420,6 +421,7 @@ class IMAPConnection(Connection):
         if folder is None:
             folder = self._folder
         self.open_folder(folder)
+        status = None
         try:
             status, response = self._link.expunge()
             _LOG.info('%s: expunge() status: %s, response: %s',
