@@ -112,7 +112,11 @@ class MessageFilter:
         self._actions = actions
 
     def applies_to(self, message: Message) -> bool:
-        return self._condition(message)
+        try:
+            return self._condition(message)
+        except:
+            _LOG.exception('filter %s failed on message %s', self, message)
+            return False
 
     def apply_unconditionally(self, message: Message):
         """Apply actions of this filter to the given message ignoring the conditions."""

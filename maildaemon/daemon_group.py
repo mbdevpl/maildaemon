@@ -42,14 +42,17 @@ class DaemonGroup:
         for name, connection in self._connections.items():
             if not isinstance(connection, EmailCache):
                 continue
+            connection_filters = [
+                filter_ for filter_ in self._filters if connection in filter_._connections]
             _LOG.warning('filtering messages in "%s": %s', name, connection)
             for folder in connection.folders.values():
                 for message in folder.messages:
-                    for message_filter in self._filters:
+                    for message_filter in connection_filters:
                         if not message_filter.applies_to(message):
                             continue
                         _LOG.warning('filter %s applies to:\n%s', message_filter, message)
                         message_filter.apply_unconditionally(message)
+                        break
 
     def run(self):
         self._connections.connect_all()
