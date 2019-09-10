@@ -242,7 +242,15 @@ class Message:
         """Move message to a specific folder on a specific server."""
         assert isinstance(folder_name, str), type(folder_name)
         if server is not self._origin_server:
-            raise NotImplementedError('move_to() not implemented moving between servers')
+            from .imap_connection import IMAPConnection
+            assert isinstance(self._origin_server, IMAPConnection), type(self._origin_server)
+            assert isinstance(server, IMAPConnection), type(server)
+            parts = self._origin_server.retrieve_message_parts(
+                self._origin_id, ['UID', 'ENVELOPE', 'FLAGS', 'INTERNALDATE', 'BODY.PEEK[]'],
+                self._origin_folder)
+            server.add_message(parts, folder_name)
+            self._origin_server.delete_message(self._origin_id, self._origin_folder)
+            return
         if folder_name == self._origin_folder:
             _LOG.debug('move_to() destination same as origin, nothing to do')
             return
