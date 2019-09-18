@@ -8,7 +8,10 @@ def configure_logging():
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
-            'brief': {'style': '{', 'format': '{name} [{levelname}] {message}'},
+            'brief': {
+                '()': 'colorlog.ColoredFormatter',
+                'style': '{',
+                'format': '{name} [{log_color}{levelname}{reset}] {message}'},
             'precise': {'style': '{', 'format': '{asctime} {name} [{levelname}] {message}'}
             },
         'handlers': {

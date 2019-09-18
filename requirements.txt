@@ -1,3 +1,4 @@
+colorlog
 daemon
 encrypted-config
 oauthlib[rsa]
