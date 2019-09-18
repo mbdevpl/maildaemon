@@ -6,6 +6,7 @@ import argparse
 import logging
 import pathlib
 
+import colorama
 import daemon
 
 from ._version import VERSION as version
@@ -118,6 +119,8 @@ Copyright 2016-2019 Mateusz Bysiek  https://mbdevpl.github.io/
 
 def main(args=None):
     """Command-line interface of maildaemon."""
+    colorama.init()
+
     args = parse_args(args)
 
     if args.verbose:

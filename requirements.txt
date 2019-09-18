@@ -1,3 +1,4 @@
+colorama
 colorlog
 daemon
 encrypted-config

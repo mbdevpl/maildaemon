@@ -8,6 +8,20 @@ import getpass
 import typing as t
 
 
+class Response:
+    """Helper class for automatic decoding and printing server responses."""
+
+    def __init__(self, response: t.Union[str, bytes, t.List[t.Union[str, bytes]]]):
+        self.response = response
+
+    def __str__(self):
+        if isinstance(self.response, str):
+            return self.response
+        if isinstance(self.response, bytes):
+            return self.response.decode()
+        return str([r.decode() if isinstance(r, bytes) else r for r in self.response])
+
+
 class Connection(metaclass=abc.ABCMeta):
     """General notion of a connection to some server."""
 

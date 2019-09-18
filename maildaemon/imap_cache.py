@@ -5,6 +5,8 @@ import imaplib
 import logging
 import typing as t
 
+import colorama
+
 from .message import Message
 from .folder import Folder
 from .email_cache import EmailCache
@@ -37,7 +39,8 @@ class IMAPCache(EmailCache, IMAPConnection):
 
         for folder_name, flags in folders.items():
             if folder_name not in self.folders:
-                _LOG.info('%s: new folder "%s" found', self, folder_name)
+                _LOG.info('%s%s%s: new folder "%s" found',
+                          colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder_name)
                 self.folders[folder_name] = Folder(self, folder_name, flags)
 
     def update_messages_in(self, folder: Folder):
