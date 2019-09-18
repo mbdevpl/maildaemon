@@ -264,6 +264,11 @@ class Message:
     def send_via(self, server: Connection) -> None:
         server.send_message(self._email_message)
 
+    def str_oneline(self):
+        return (f'{type(self).__name__}(From:{self.from_name}<{self.from_address}>,'
+                f'To:{self.to_name}<{self.to_address}>,Subject:{self.subject},'
+                f'DateAndTime:{self.datetime})')
+
     def str_headers(self):
         return '\n'.join([
             'From:     {}'.format(self.from_address),
@@ -318,7 +323,7 @@ class Message:
             ])
 
     def __str__(self):
-        return self.str_complete()
+        return self.str_oneline()
 
     def __repr__(self):
         return self.str_headers_compact()
