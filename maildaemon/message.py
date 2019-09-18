@@ -248,6 +248,8 @@ class Message:
             parts = self._origin_server.retrieve_message_parts(
                 self._origin_id, ['UID', 'ENVELOPE', 'FLAGS', 'INTERNALDATE', 'BODY.PEEK[]'],
                 self._origin_folder)
+            _LOG.warning('moving %s between servers: from %s "%s" to %s "%s"',
+                         self, self._origin_server, self._origin_folder, server, folder_name)
             server.add_message(parts, folder_name)
             self._origin_server.delete_message(self._origin_id, self._origin_folder)
             return
@@ -255,8 +257,10 @@ class Message:
             _LOG.debug('move_to() destination same as origin, nothing to do')
             return
         from .imap_connection import IMAPConnection
-        assert isinstance(server, IMAPConnection), type(server)
-        server.move_messages([self._origin_id], folder_name, self._origin_folder)
+        assert isinstance(self._origin_server, IMAPConnection), type(self._origin_server)
+        _LOG.warning('moving %s within same server %s: from "%s" to "%s"',
+                     self, self._origin_server, self._origin_folder, folder_name)
+        self._origin_server.move_message(self._origin_id, folder_name, self._origin_folder)
 
     def copy_to(self, server: Connection, folder: str) -> None:
         raise NotImplementedError()
