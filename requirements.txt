@@ -3,8 +3,8 @@ colorlog
 daemon
 encrypted-config
 oauthlib[rsa]
-oauthlib-requests
 ordered-set
 python-dateutil
+requests-oauthlib
 timing
 version-query
