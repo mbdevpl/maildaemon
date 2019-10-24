@@ -27,4 +27,5 @@ class Tests(unittest.TestCase):
                 connection.connect()
                 connection.update()
                 connection.disconnect()
-                self.assertGreater(len(connection.messages), 0, msg=connection)
+                self.assertIn('INBOX', connection.folders, msg=connection)
+                self.assertGreater(len(connection.folders['INBOX'].messages), 0, msg=connection)

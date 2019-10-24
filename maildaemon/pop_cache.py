@@ -1,4 +1,4 @@
-"""Daemon working with POP connections."""
+"""Cache for messages accessed via POP connections."""
 
 import email.parser
 import logging
@@ -13,7 +13,7 @@ _LOG = logging.getLogger(__name__)
 
 
 class POPCache(EmailCache, POPConnection):
-    """Daemon working with POP connections."""
+    """Cache for messages accessed via POP connections."""
 
     def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True):
         EmailCache.__init__(self)
