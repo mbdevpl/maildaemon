@@ -48,7 +48,7 @@ def validate_config(config: dict):
         assert 'domain' in connection, connection
         assert isinstance(connection['domain'], str), type(connection['domain'])
         assert connection['domain'], connection
-        assert isinstance(connection.get('ssl', False), int), type(connection['port'])
+        assert isinstance(connection.get('ssl', False), bool), type(connection['ssl'])
         assert isinstance(connection.get('port', 1), int), type(connection['port'])
         assert connection.get('port', 1) > 0, connection['port']
         assert isinstance(connection.get('login', 'test'), str), type(connection['login'])
