@@ -19,8 +19,8 @@ class POPConnection(Connection):
     ports = [110]
     ssl_ports = [995]
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
-        super().__init__(domain, ssl, port)
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True):
+        super().__init__(domain, port, ssl)
 
         if self.ssl:
             self._link = poplib.POP3_SSL(self.domain, self.port, timeout=TIMEOUT)
