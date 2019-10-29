@@ -46,7 +46,7 @@
       "connections": [
         "test-imap"
       ],
-      "condition": "from_address.endswith('@facebookmail.com') and from_address.startswith('notification')",
+      "condition": "message.from_address.endswith('@facebookmail.com') and message.from_address.startswith('notification')",
       "actions": [
         "mark:read"
       ]
@@ -55,7 +55,7 @@
       "connections": [
         "test-imap"
       ],
-      "condition": "to_address == 'testuser@tedivm.com'",
+      "condition": "message.to_address == 'testuser@tedivm.com'",
       "actions": [
         "mark:read"
       ]
