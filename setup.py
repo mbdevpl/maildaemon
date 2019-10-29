@@ -1,10 +1,9 @@
-"""This is "setup.py" file for maildaemon."""
+"""Setup script for maildaemon package."""
 
 import setup_boilerplate
 
 
 class Package(setup_boilerplate.Package):
-
     """Package metadata."""
 
     name = 'maildaemon'
@@ -17,8 +16,9 @@ class Package(setup_boilerplate.Package):
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Utilities'
         ]

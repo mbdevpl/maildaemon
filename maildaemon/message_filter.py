@@ -59,7 +59,6 @@ FILTER_CODE = 'lambda message: {}'
 
 
 class MessageFilter:
-
     """For selective actions on messages."""
 
     @classmethod

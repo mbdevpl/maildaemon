@@ -3,6 +3,7 @@
 import logging
 import typing as t
 
+from .connection import Connection
 from .message import Message
 
 _LOG = logging.getLogger(__name__)
@@ -11,7 +12,7 @@ _LOG = logging.getLogger(__name__)
 class Folder:
     """For storing messages."""
 
-    def __init__(self, connection: 'Connection', name: str, flags: t.Sequence[str] = None):
+    def __init__(self, connection: Connection, name: str, flags: t.Sequence[str] = None):
         if flags is None:
             flags = set()
         self._connection = connection  # type: Connection
@@ -32,11 +33,12 @@ class Folder:
     def messages(self):
         return self._messages
 
-    def add_message(self, message):
+    def add_message(self, message: Message):
+        assert isinstance(message, Message)
         assert message not in self._messages
         self._messages.add(message)
 
-    def remove_message(self, message):
+    def remove_message(self, message: Message):
         self._messages.remove(message)
 
     def find_message(self, *args, **kwargs):
