@@ -8,7 +8,7 @@ import typing as t
 
 from .message import Message
 from .connection import Connection
-from .filter_actions import move
+from .filter_actions import mark, move
 
 _LOG = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ on its argument.
 """
 
 ACTIONS = {
-    'mark': lambda message, imap_daemon, flag: imap_daemon.set_flag(message, flag),
+    'mark': mark,
     'move': move,
     'copy': lambda message, imap_daemon, folder: imap_daemon.copy_message(message, folder),
     'delete': None,
@@ -93,6 +93,8 @@ class MessageFilter:
             if action is move:
                 connection, _, folder = raw_args.partition('/')
                 args = (named_connections[connection], folder)
+            elif action is mark:
+                args = raw_args
             else:
                 raise NotImplementedError(
                     f'parsing args "{raw_args}" for action "{operation}" is not implemented yet')
