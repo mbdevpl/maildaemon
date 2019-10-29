@@ -18,8 +18,8 @@ class SMTPConnection(Connection):
     ports = [25, 465, 587]
     ssl_ports = [465, 587]
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
-        super().__init__(domain, ssl, port)
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True):
+        super().__init__(domain, port, ssl)
 
         if self.ssl:
             self._link = smtplib.SMTP_SSL(self.domain, self.port, timeout=TIMEOUT)

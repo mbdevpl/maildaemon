@@ -11,9 +11,9 @@ from .smtp_connection import SMTPConnection
 class SMTPDaemon(Daemon, SMTPConnection):
     """Daemon working with SMTP connections."""
 
-    def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
+    def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True):
         Daemon.__init__(self)
-        SMTPConnection.__init__(self, domain, ssl, port)
+        SMTPConnection.__init__(self, domain, port, ssl)
 
         self._outbox = []
 
