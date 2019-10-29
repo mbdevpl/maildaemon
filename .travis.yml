@@ -2,7 +2,6 @@ dist: precise
 sudo: required
 language: python
 python:
-  - "3.5"
   - "3.6"
   - "3.7-dev"
 matrix:
@@ -25,7 +24,6 @@ script:
 after_success:
   - python -m coverage report --show-missing
   - codecov
-  - python -m pylint --load-plugins=pylint.extensions.mccabe --docstring-min-length 5 --no-docstring-rgx "^(test)?_|.*Tests$" --unsafe-load-any-extension y --output-format colorized  --reports y $(find . -name "*.py")
 
 after_script:
   - sudo stop dovecot
