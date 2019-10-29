@@ -27,11 +27,11 @@ class Tests(unittest.TestCase):
     def test_from_email_message(self):
         config = load_config(_TEST_CONFIG_PATH)
         folder = 'INBOX'
-        message_id = 1
         connection = IMAPConnection.from_dict(config['connections']['test-imap-ssl'])
         connection.connect()
         connection.open_folder(folder)
-        messages_data = connection.retrieve_messages_parts([message_id], ['BODY.PEEK[]'], folder)
+        ids = connection.retrieve_message_ids()
+        messages_data = connection.retrieve_messages_parts(ids[:1], ['BODY.PEEK[]'])
         connection.disconnect()
         _, body = messages_data[0]
         message = Message(email.message_from_bytes(body), connection, folder, 1)

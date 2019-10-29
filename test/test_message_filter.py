@@ -45,7 +45,8 @@ class Tests(unittest.TestCase):
     def test_if_applies(self):
         connection = IMAPCache.from_dict(self.config['connections']['test-imap'])
         connection.connect()
-        msg = connection.retrieve_message(1)
+        ids = connection.retrieve_message_ids()
+        msg = connection.retrieve_message(ids[0])
         connection.disconnect()
         _LOG.debug('%s', msg.from_address)
         _LOG.debug('%s', msg.subject)
