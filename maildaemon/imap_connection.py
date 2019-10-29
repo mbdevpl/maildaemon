@@ -213,7 +213,7 @@ class IMAPConnection(Connection):
 
         status = None
         try:
-            status, response = self._link.select('"{}"'.format(folder))
+            status, response = self._link.select(f'"{folder}"')
             _LOG.info('%s%s%s: select("%s") status: %s, response: %s%s%s',
                       colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder,
                       status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
@@ -346,7 +346,7 @@ class IMAPConnection(Connection):
         command_prefix = {True: '+', False: '-', None: ''}[alteration]
         command_suffix = {True: '.SILENT', False: ''}[silent]
 
-        command = '{}FLAGS{}'.format(command_prefix, command_suffix)
+        command = f'{command_prefix}FLAGS{command_suffix}'
 
         status = None
         try:
@@ -441,7 +441,7 @@ class IMAPConnection(Connection):
         try:
             status, response = self._link.uid(
                 'copy', ','.join([str(message_id) for message_id in message_ids]),
-                '"{}"'.format(target_folder))
+                f'"{target_folder}"')
             _LOG.info(
                 '%s%s%s: copy(%s, "%s") status: %s, response: %s%s%s',
                 colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, target_folder,

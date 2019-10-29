@@ -46,15 +46,15 @@ def recode_timezone_info(dt: datetime.datetime):
     dst = (' ' + dst) if dst != datetime.timedelta() else ''
 
     if name == 'UTC':
-        return '{}{}'.format(name, dst)
+        return f'{name}{dst}'
 
     offset = dt.utcoffset()
     offset = ('+' if offset >= datetime.timedelta() else '') + str(offset.total_seconds() / 3600)
 
     if name is None or not name:
-        return 'UTC{}{}'.format(offset, dst)
+        return f'UTC{offset}{dst}'
 
-    return '{} (UTC{}{})'.format(name, offset, dst)
+    return f'{name} (UTC{offset}{dst})'
 
 
 class Message:
@@ -204,8 +204,7 @@ class Message:
             for part in parts:
                 self._init_contents_from_email_message(part)
         else:
-            raise NotImplementedError(
-                'handling of "{}" not implemented'.format(content_type))
+            raise NotImplementedError(f'handling of "{content_type}" not implemented')
 
     def _init_contents_part(self, part: email.message.Message):
         content_type = part.get_content_type()
@@ -275,18 +274,18 @@ class Message:
 
     def str_headers(self):
         return '\n'.join([
-            'From:     {}'.format(self.from_address),
-            '          {}'.format(self.from_name),
-            'Reply-To: {}'.format(self.reply_to_address),
-            '          {}'.format(self.reply_to_name),
-            'To:       {}'.format(self.to_address),
-            '          {}'.format(self.to_name),
-            'Subject:  {}'.format(self.subject),
-            'Date:     {}'.format(self.date),
-            'Time:     {}'.format(self.time),
-            'Timezone: {}'.format(self.timezone),
-            'Locally:  {}'.format(self.local_date),
-            '          {}'.format(self.local_time),
+            f'From:     {self.from_address}',
+            f'          {self.from_name}',
+            f'Reply-To: {self.reply_to_address}',
+            f'          {self.reply_to_name}',
+            f'To:       {self.to_address}',
+            f'          {self.to_name}',
+            f'Subject:  {self.subject}',
+            f'Date:     {self.date}',
+            f'Time:     {self.time}',
+            f'Timezone: {self.timezone}',
+            f'Locally:  {self.local_date}',
+            f'          {self.local_time}',
             # '',
             # '  Received: {}'.format(self.received),
             # '  Return-Path: {}'.format(self.return_path),
@@ -299,11 +298,11 @@ class Message:
 
     def str_headers_compact(self):
         return '\n'.join([
-            'From:     {} {}'.format(self.from_address, self.from_name),
-            'Reply-To: {} {}'.format(self.reply_to_address, self.reply_to_name),
-            'To:       {} {}'.format(self.to_address, self.to_name),
-            'Subject:  {}'.format(self.subject),
-            'Datetime: {} {} {}'.format(self.date, self.time, self.timezone)
+            f'From:     {self.from_address} {self.from_name}',
+            f'Reply-To: {self.reply_to_address} {self.reply_to_name}',
+            f'To:       {self.to_address} {self.to_name}',
+            f'Subject:  {self.subject}',
+            f'Datetime: {self.date} {self.time} {self.timezone}'
             ])
 
     def str_quote(self):
@@ -316,10 +315,10 @@ class Message:
         return '\n'.join([
             self.str_headers(),
             '',
-            'id: {}'.format(self._origin_id),
-            'flags: {}'.format(self.flags),
+            f'id: {self._origin_id}',
+            f'flags: {self.flags}',
             '',
-            'contents{}:'.format(' (multipart, {} parts)'.format(len(self.contents))
+            'contents{}:'.format(f' (multipart, {len(self.contents)} parts)'
                                  if len(self.contents) > 1 else ''),
             80*'=',
             (80*'=' + '\n').join(self.contents),

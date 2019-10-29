@@ -96,7 +96,7 @@ class MessageFilter:
                 args = (named_connections[connection], folder)
             else:
                 raise NotImplementedError(
-                    'parsing args for action "{}" is not implemented yet'.format(operation))
+                    f'parsing args "{raw_args}" for action "{operation}" is not implemented yet')
             _LOG.debug('parsed to operation %s (mapped to action %s), args: %s',
                        operation, action, args)
             actions.append((action, args))

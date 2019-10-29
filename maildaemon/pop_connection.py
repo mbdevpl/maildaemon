@@ -60,7 +60,7 @@ class POPConnection(Connection):
             raise RuntimeError('retrieve_message_ids() failed') from err
 
         if not status.startswith(b'+OK'):
-            raise RuntimeError('user() status: "{}"'.format(status))
+            raise RuntimeError(f'user() status: "{status}"')
 
         status = b''
         try:
@@ -71,7 +71,7 @@ class POPConnection(Connection):
             raise RuntimeError('retrieve_message_ids() failed') from err
 
         if not status.startswith(b'+OK'):
-            raise RuntimeError('pass_() status: "{}"'.format(status))
+            raise RuntimeError(f'pass_() status: "{status}"')
 
     def _connect_secure(self) -> bool:
 

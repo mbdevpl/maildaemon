@@ -33,7 +33,7 @@ def load_config(path: pathlib.Path = DEFAULT_CONFIG_PATH):
     try:
         validate_config(config)
     except AssertionError as err:
-        raise ValueError('{} is an invalid maildaemon config'.format(path)) from err
+        raise ValueError(f'{path} is an invalid maildaemon config') from err
     return config
 
 
