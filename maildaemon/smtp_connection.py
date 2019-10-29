@@ -13,7 +13,6 @@ TIMEOUT = 10
 
 
 class SMTPConnection(Connection):
-
     """For handling SMTP connections."""
 
     ports = [25, 465, 587]
@@ -31,7 +30,6 @@ class SMTPConnection(Connection):
             self._upgrade_connection()
 
     def _upgrade_connection(self) -> None:
-
         if self.ssl:
             return
 
@@ -47,7 +45,6 @@ class SMTPConnection(Connection):
             _LOG.info('%s: connection upgraded to TLS', self)
 
     def connect(self) -> None:
-
         status = 0
         try:
             status, response = self._link.login(self.login, self.password)
@@ -62,7 +59,6 @@ class SMTPConnection(Connection):
             raise RuntimeError('connect() failed')
 
     def is_alive(self) -> bool:
-
         status = 0
         try:
             status, response = self._link.noop()
@@ -73,7 +69,6 @@ class SMTPConnection(Connection):
         return status in range(200, 300)
 
     def send_message(self, message: email.message.Message) -> None:
-
         status = None
         try:
             status = self._link.send_message(message)
@@ -86,7 +81,6 @@ class SMTPConnection(Connection):
             raise RuntimeError('send_message() failed')
 
     def disconnect(self) -> None:
-
         status = 0
         try:
             status, response = self._link.quit()

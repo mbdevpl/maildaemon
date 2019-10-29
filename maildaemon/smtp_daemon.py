@@ -9,7 +9,6 @@ from .smtp_connection import SMTPConnection
 
 
 class SMTPDaemon(Daemon, SMTPConnection):
-
     """Daemon working with SMTP connections."""
 
     def __init__(self, domain: str, ssl: bool = True, port: t.Optional[int] = None):
