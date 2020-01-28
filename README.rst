@@ -67,15 +67,15 @@ Supported protocols
 
 Currently, the package has a very limited support for:
 
-*   IMAP4rev1 -- via Python built-in `imaplib<https://docs.python.org/3/library/imaplib.html>`_ module.
+*   IMAP4rev1 -- via Python built-in `imaplib <https://docs.python.org/3/library/imaplib.html>`_ module.
 
     You can see how the module works in `<examples/imap_examples.ipynb>`_.
 
-*   SMTP -- via Python built-in `smtplib<https://docs.python.org/3/library/smtplib.html>`_ module.
+*   SMTP -- via Python built-in `smtplib <https://docs.python.org/3/library/smtplib.html>`_ module.
 
     You can see how the module works in `<examples/smtp_examples.ipynb>`_.
 
-*   POP3 -- via Python built-in `poplib<https://docs.python.org/3/library/poplib.html>`_ module.
+*   POP3 -- via Python built-in `poplib <https://docs.python.org/3/library/poplib.html>`_ module.
 
     You can see how the module works in `<examples/pop_examples.ipynb>`_.
 
