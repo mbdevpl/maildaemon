@@ -55,11 +55,11 @@ For simplest installation use :bash:`pip`:
     pip3 install maildaemon
 
 
-Python 3.5 or later is required, and required dependencies defined in `<requirements.txt>`_
+Python 3.6 or later is required, and required dependencies defined in `<requirements.txt>`_
 will be automatically installed too.
 
 Maildaemon works based on a JSON configuration file. If it doesn't exist,
-detault one will be generated. An example is provided in `<test/maildaemon_test_config.json>`_.
+default one will be generated. An example is provided in `<test/maildaemon_test_config.json>`_.
 
 
 Supported protocols
@@ -176,7 +176,7 @@ Details to be decided.
 Filter actions
 ~~~~~~~~~~~~~~
 
-*   move -- Move the message to a specific folder within a specific account.
+*   move -- Move the message to a specific folder on a specific account.
 
     "move:Gmail/INBOX/my mailing list" will move the message to a folder "/INBOX/my mailing list"
     in account named "Gmail".
@@ -193,47 +193,33 @@ Filter actions
     In Gmail web mail client this is visible as star, in Mac mail client as a red flag,
     in Evolution as "Important message".
 
+*   More actions to be implemented.
+
 
 Testing locally
 ===============
 
-Running IMAP and POP server in vagrant:
+Start Greenmail server in docker:
 
 .. code:: bash
 
-    git clone https://github.com/mbdevpl/DovecotTesting.git
-    cd DovecotTesting/vagrant
-    vagrant up --provision
-    sudo -E ssh -F ssh_config DovecotTesting -p $(vagrant port --guest 22)  # ssh password: "vagrant"
+    docker run -d --name greenmail -p 3143:3143 -p 3993:3993 -p 3110:3110 -p 3995:3995 -p 3025:3025 -p 3465:3465 -e GREENMAIL_OPTS='-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled -Dgreenmail.verbose -Dgreenmail.users=login:password@domain.com' -t greenmail/standalone:latest
 
-Running SMTP server in docker:
+Make sure that services are running:
 
 .. code:: bash
 
-    (sudo) docker pull gessnerfl/fake-smtp-server
-    (sudo) docker run -d --name fake-smtp -p 25:5025 -e "fakesmtp_authentication_username=testuser" -e "fakesmtp_authentication_password=applesauce" gessnerfl/fake-smtp-server
+    .build/check_ports.sh
 
-Check if services are running:
-
-.. code:: bash
-
-    ./DovecotTesting/VerifyEnvironment.sh  # IMAP and POP
-    sudo docker ps  # SMTP
-
-Running tests:
+Run tests:
 
 .. code:: bash
 
-    vagrant provision  # to reset IMAP/POP mailboxes after previous tests
-    TEST_COMM=1 TEST_SMTP=1 python3 -m coverage run --branch --source . -m unittest discover --verbose
+    TEST_COMM=1 python3 -m coverage run --branch --source . -m unittest -v test.test_smtp_connection
+    TEST_COMM=1 python3 -m coverage run --branch --source . -m unittest -v
 
-The vagrant service has a built-in 30 min timeout, and will turn off after it.
-Running "vagrant provision" resets the countdown.
-If you miss the timeout, run "vagrant up --provision" and ssh again.
-
-Stop the services:
+Stop the Greenmail server:
 
 .. code:: bash
 
-    vagrant down  # IMAP and POP
-    (sudo) docker container kill fake-smtp  # SMTP
+    docker container kill greenmail
