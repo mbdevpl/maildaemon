@@ -83,7 +83,7 @@ Currently, the package has a very limited support for:
 Supported authentication
 ========================
 
-*   usual
+*   password
 *   oauth
 
 
@@ -108,7 +108,7 @@ Connections
 The "connections" section is a dictionary where keys are human-readable connection names,
 and values are dictionaries that describe connection parameters.
 
-Connection parameters are:
+For password authentication, connection parameters are:
 
 *   protocol -- IMAP, POP or SMTP
 *   domain -- a string of characters
@@ -135,6 +135,35 @@ Connection parameters are:
         "port": 995,
         "login": "testuser",
         "password": "applesauce"
+      }
+    }
+
+For Oauth authentication, the password can be left empty, but additional parameters
+need to be configured instead. Simplified list of parameters to connect to Gmail is provided below:
+
+.. code:: json
+
+    {
+      "test-gmail": {
+        "protocol": "IMAP",
+        "domain": "",
+        "ssl": true,
+        "port": 993,
+        "oauth": true,
+        "oauth-data": {
+          "token_path": "/path/to/where/tokenfile/will/be/stored.json",
+          "client_id": "???.apps.googleusercontent.com",
+          "project_id": "???",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "auth_uri_params": {"access_type": "offline", "prompt": "select_account"},
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          "client_secret": "???",
+          "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"],
+          "scopes": ["https://mail.google.com/"]
+        },
+        "login": "my-gmail@gmail.com",
+        "password": ""
       }
     }
 
