@@ -15,8 +15,8 @@ Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
     :target: https://pypi.python.org/pypi/maildaemon
     :alt: package version from PyPI
 
-.. image:: https://travis-ci.org/mbdevpl/maildaemon.svg?branch=master
-    :target: https://travis-ci.org/mbdevpl/maildaemon
+.. image:: https://travis-ci.com/mbdevpl/maildaemon.svg?branch=master
+    :target: https://travis-ci.com/mbdevpl/maildaemon
     :alt: build status from Travis CI
 
 .. image:: https://api.codacy.com/project/badge/Grade/b35bf4a73a724854b0ba1cef4385c6f7
