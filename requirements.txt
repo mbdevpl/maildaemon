@@ -6,5 +6,5 @@ oauthlib[rsa]
 ordered-set
 python-dateutil
 requests-oauthlib
-timing
-version-query
+timing ~= 0.4
+version-query >= 1.0.5, == 1.*
