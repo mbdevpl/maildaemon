@@ -10,6 +10,7 @@ import socket
 import typing as t
 
 import colorama
+from encrypted_config import normalize_path
 from requests_oauthlib import OAuth2Session
 import timing
 
@@ -71,7 +72,7 @@ class IMAPConnection(Connection):
                    self._link.capabilities)
 
     def _connect_oauth(self) -> tuple:
-        token_path = pathlib.Path(f'token_{self._login.replace("@", "_")}.json')
+        token_path = pathlib.Path(normalize_path(self.oauth_data['token_path']))
 
         token_valid = False
         if token_path.is_file():
