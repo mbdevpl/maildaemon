@@ -34,7 +34,7 @@ Configuration is stored in "{}".
   maildaemon -h
   maildaemon -d
 
-Copyright 2016-2019 Mateusz Bysiek  https://mbdevpl.github.io/
+Copyright 2016-2020  Mateusz Bysiek  https://mbdevpl.github.io/
 ''',
         formatter_class=Formatter, allow_abbrev=True)
     """
