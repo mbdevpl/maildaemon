@@ -4,41 +4,49 @@
       "protocol": "IMAP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 143,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3143,
+      "login": "login@domain.com",
+      "password": "password"
     },
     "test-imap-ssl": {
       "protocol": "IMAP",
       "domain": "127.0.0.1",
       "ssl": true,
-      "port": 993,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3993,
+      "login": "login@domain.com",
+      "password": "password"
     },
     "test-pop": {
       "protocol": "POP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 110,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3110,
+      "login": "login@domain.com",
+      "password": "password"
     },
     "test-pop-ssl": {
       "protocol": "POP",
       "domain": "127.0.0.1",
       "ssl": true,
-      "port": 995,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3995,
+      "login": "login@domain.com",
+      "password": "password"
     },
     "test-smtp": {
       "protocol": "SMTP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 25,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3025,
+      "login": "login@domain.com",
+      "password": "password"
+    },
+    "test-smtp-ssl": {
+      "protocol": "SMTP",
+      "domain": "127.0.0.1",
+      "ssl": true,
+      "port": 3465,
+      "login": "login@domain.com",
+      "password": "password"
     }
   },
   "filters": {
@@ -51,11 +59,11 @@
         "mark:read"
       ]
     },
-    "autoreply": {
+    "test-message": {
       "connections": [
         "test-imap"
       ],
-      "condition": "message.to_address == 'testuser@tedivm.com'",
+      "condition": "'test' in message.subject.lower()",
       "actions": [
         "mark:read"
       ]

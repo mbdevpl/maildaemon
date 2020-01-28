@@ -7,7 +7,6 @@ import pathlib
 import unittest
 
 from maildaemon.config import load_config
-from maildaemon.imap_connection import IMAPConnection
 from maildaemon.smtp_daemon import SMTPDaemon
 
 _LOG = logging.getLogger(__name__)
@@ -22,14 +21,9 @@ class Tests(unittest.TestCase):
 
     config = load_config(_TEST_CONFIG_PATH)
 
-    @unittest.skipUnless(os.environ.get('TEST_SMTP'), 'skipping SMTP-related test')
     def test_update(self):
-        imap = IMAPConnection.from_dict(self.config['connections']['test-imap'])
-        imap.connect()
-        _, body = imap.retrieve_message_parts(1, ['BODY.PEEK[]'])
-        imap.disconnect()
-
-        message = email.message_from_bytes(body)
+        with _HERE.joinpath('message1.txt').open() as email_file:
+            message = email.message_from_file(email_file)
 
         connection = SMTPDaemon.from_dict(self.config['connections']['test-smtp'])
         connection.connect()

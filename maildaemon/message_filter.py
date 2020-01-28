@@ -94,7 +94,7 @@ class MessageFilter:
                 connection, _, folder = raw_args.partition('/')
                 args = (named_connections[connection], folder)
             elif action is mark:
-                args = raw_args
+                args = (raw_args,)
             else:
                 raise NotImplementedError(
                     f'parsing args "{raw_args}" for action "{operation}" is not implemented yet')
@@ -122,8 +122,10 @@ class MessageFilter:
     def apply_unconditionally(self, message: Message):
         """Apply actions of this filter to the given message ignoring the conditions."""
         for action, args in self._actions:
-            if action is not move:
+            if action not in {move, mark}:
                 raise RuntimeError('refusing to execute untested action')
+            if action is mark:
+                args = (message._origin_server, *args)
             action(message, *args)
 
     def apply_to(self, message: Message):

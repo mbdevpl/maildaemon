@@ -7,6 +7,7 @@ import typing as t
 import unittest
 
 from maildaemon.config import load_config
+from maildaemon.connection import Connection
 from maildaemon.imap_connection import IMAPConnection
 from maildaemon.imap_cache import IMAPCache
 from maildaemon.message_filter import MessageFilter
@@ -58,7 +59,7 @@ class Tests(unittest.TestCase):
         self.assertIsInstance(result, bool, msg=(filter_, msg))
         self.assertFalse(result)
 
-        filter_ = MessageFilter.from_dict(self.config['filters']['autoreply'],
+        filter_ = MessageFilter.from_dict(self.config['filters']['test-message'],
                                           {'test-imap': connection})
         result = filter_.applies_to(msg)
         _LOG.debug('Does filter apply? %s', result)
