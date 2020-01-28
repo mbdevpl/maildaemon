@@ -67,7 +67,8 @@ class IMAPConnection(Connection):
         if status != 'OK':
             raise RuntimeError('connect() failed')
 
-        _LOG.debug('%s: capabilities: %s', self, self._link.capabilities)
+        _LOG.debug('%s%s%s: capabilities: %s', colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+                   self._link.capabilities)
 
     def _connect_oauth(self) -> tuple:
         token_path = pathlib.Path(f'token_{self._login.replace("@", "_")}.json')
@@ -178,7 +179,8 @@ class IMAPConnection(Connection):
             flag_str = flag_str[1:-1]
             flags = set(flag_str.split())
             if flags:
-                _LOG.debug('%s: folder "%s" has flags %s', self, folder_name, flags)
+                _LOG.debug('%s%s%s: folder "%s" has flags %s',
+                           colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder_name, flags)
             folders_with_flags.append((folder_name, flags))
 
         return folders_with_flags

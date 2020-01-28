@@ -4,6 +4,8 @@ import logging
 import poplib
 import typing as t
 
+import colorama
+
 # from .message import Message
 from .connection import Connection
 
@@ -13,7 +15,6 @@ TIMEOUT = 10
 
 
 class POPConnection(Connection):
-
     """For handling POP connections."""
 
     ports = [110]
@@ -38,13 +39,15 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.stls()
-            _LOG.info('%s: stls() status: %s', self, status)
+            _LOG.info('%s%s%s: stls() status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, status)
         except poplib.error_proto:
             _LOG.warning('%s: stls() failed', self)
 
         if status.startswith(b'+OK'):
             self.ssl = True
-            _LOG.info('%s: connection upgraded to TLS', self)
+            _LOG.info('%s%s%s: connection upgraded to TLS',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL)
 
     def connect(self) -> None:
 
@@ -54,7 +57,8 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.user(self.login)
-            _LOG.info('%s: user(%s) status: %s', self, self.login, status)
+            _LOG.info('%s%s%s: user(%s) status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, self.login, status)
         except poplib.error_proto as err:
             _LOG.exception('%s: list() failed', self)
             raise RuntimeError('retrieve_message_ids() failed') from err
@@ -65,7 +69,8 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.pass_(self.password)
-            _LOG.info('%s: pass_(%s) status: %s', self, '***', status)
+            _LOG.info('%s%s%s: pass_(%s) status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, '***', status)
         except poplib.error_proto as err:
             _LOG.exception('%s: list() failed', self)
             raise RuntimeError('retrieve_message_ids() failed') from err
@@ -78,7 +83,8 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.apop(self.login, self.password)
-            _LOG.info('%s: apop(%s, %s) status: %s', self, self.login, '***', status)
+            _LOG.info('%s%s%s: apop(%s, %s) status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, self.login, '***', status)
         except poplib.error_proto:
             _LOG.warning('%s: apop() failed', self)
 
@@ -96,7 +102,8 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.noop()
-            _LOG.info('%s: noop() status: %s', self, status)
+            _LOG.info('%s%s%s: noop() status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, status)
         except poplib.error_proto:
             _LOG.exception('%s: noop() failed', self)
 
@@ -108,8 +115,10 @@ class POPConnection(Connection):
         try:
             status, message_ids, octets = self._link.list()
             _LOG.info(
-                '%s: list() status: %s, message_ids: %s, octets: %s',
-                self, status, [r.decode() for r in message_ids], octets)
+                '%s%s%s: list() status: %s, message_ids: %s%s%s, octets: %s%s%s',
+                colorama.Style.DIM, self, colorama.Style.RESET_ALL, status,
+                colorama.Style.DIM, [r.decode() for r in message_ids], colorama.Style.RESET_ALL,
+                colorama.Style.DIM, octets, colorama.Style.RESET_ALL)
         except poplib.error_proto as err:
             _LOG.exception('%s: list() failed', self)
             raise RuntimeError('retrieve_message_ids() failed') from err
@@ -125,8 +134,9 @@ class POPConnection(Connection):
         try:
             status, message_lines, octets = self._link.retr(message_id)
             _LOG.info(
-                '%s: retr(%i) status: %s, len(message_lines): %s, octets: %s',
-                self, message_id, status, len(message_lines), octets)
+                '%s%s%s: retr(%i) status: %s, len(message_lines): %s, octets: %s',
+                colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+                message_id, status, len(message_lines), octets)
         except poplib.error_proto as err:
             _LOG.exception('%s: retr(%i) failed', self, message_id)
             raise RuntimeError('retrieve_message_lines() failed') from err
@@ -141,7 +151,8 @@ class POPConnection(Connection):
         status = b''
         try:
             status = self._link.quit()
-            _LOG.info('%s: quit() status: %s', self, status)
+            _LOG.info('%s%s%s: quit() status: %s',
+                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, status)
         except poplib.error_proto as err:
             _LOG.exception('%s: quit() failed', self)
             raise RuntimeError('disconnect() failed') from err
