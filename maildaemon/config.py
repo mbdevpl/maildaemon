@@ -52,9 +52,10 @@ def validate_config(config: dict):
         assert isinstance(connection.get('port', 1), int), type(connection['port'])
         assert connection.get('port', 1) > 0, connection['port']
         assert isinstance(connection.get('login', 'test'), str), type(connection['login'])
-        assert connection.get('login', 'test'), connection['login']
+        assert connection.get('login', ''), connection['login']
         assert isinstance(connection.get('password', 'test'), str), type(connection['password'])
-        assert connection.get('password', 'test'), connection['password']
+        assert connection.get('password', None) or connection.get('oauth', False), (
+            connection('password', None), connection.get('oauth', False))
     for name, filter_ in config.get('filters', {}).items():
         for connection_name in filter_.get('connections', []):
             assert connection_name in config['connections']
