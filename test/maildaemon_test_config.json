@@ -5,7 +5,7 @@
       "domain": "127.0.0.1",
       "ssl": false,
       "port": 3143,
-      "login": "imap@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     },
     "test-imap-ssl": {
@@ -13,7 +13,7 @@
       "domain": "127.0.0.1",
       "ssl": true,
       "port": 3993,
-      "login": "imap-ssl@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     },
     "test-pop": {
@@ -21,7 +21,7 @@
       "domain": "127.0.0.1",
       "ssl": false,
       "port": 3110,
-      "login": "pop-ssl@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     },
     "test-pop-ssl": {
@@ -29,7 +29,7 @@
       "domain": "127.0.0.1",
       "ssl": true,
       "port": 3995,
-      "login": "pop-ssl@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     },
     "test-smtp": {
@@ -37,7 +37,7 @@
       "domain": "127.0.0.1",
       "ssl": false,
       "port": 3025,
-      "login": "smtp@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     },
     "test-smtp-ssl": {
@@ -45,7 +45,7 @@
       "domain": "127.0.0.1",
       "ssl": true,
       "port": 3465,
-      "login": "smtp@domain.com",
+      "login": "login@domain.com",
       "password": "password"
     }
   },
@@ -59,11 +59,11 @@
         "mark:read"
       ]
     },
-    "autoreply": {
+    "test-message": {
       "connections": [
         "test-imap"
       ],
-      "condition": "message.to_address == 'testuser@tedivm.com'",
+      "condition": "'test' in message.subject.lower()",
       "actions": [
         "mark:read"
       ]
