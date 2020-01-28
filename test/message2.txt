@@ -1,0 +1,5 @@
+From: Test <noreply@domain.com>
+To: <imap-ssl@domain.com>
+Subject: Test message
+
+This is a test message.

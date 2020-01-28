@@ -268,6 +268,9 @@ class IMAPConnection(Connection):
         Return list of tuples. One tuple (envelope, body) for each requested message id. Contents
         of both tuple elements depend on requested message parts, and body element might be None.
         """
+        assert message_ids
+        assert parts
+
         if folder is None:
             folder = self._folder
 

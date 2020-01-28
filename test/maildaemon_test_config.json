@@ -4,41 +4,49 @@
       "protocol": "IMAP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 143,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3143,
+      "login": "imap@domain.com",
+      "password": "password"
     },
     "test-imap-ssl": {
       "protocol": "IMAP",
       "domain": "127.0.0.1",
       "ssl": true,
-      "port": 993,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3993,
+      "login": "imap-ssl@domain.com",
+      "password": "password"
     },
     "test-pop": {
       "protocol": "POP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 110,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3110,
+      "login": "pop-ssl@domain.com",
+      "password": "password"
     },
     "test-pop-ssl": {
       "protocol": "POP",
       "domain": "127.0.0.1",
       "ssl": true,
-      "port": 995,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3995,
+      "login": "pop-ssl@domain.com",
+      "password": "password"
     },
     "test-smtp": {
       "protocol": "SMTP",
       "domain": "127.0.0.1",
       "ssl": false,
-      "port": 25,
-      "login": "testuser",
-      "password": "applesauce"
+      "port": 3025,
+      "login": "smtp@domain.com",
+      "password": "password"
+    },
+    "test-smtp-ssl": {
+      "protocol": "SMTP",
+      "domain": "127.0.0.1",
+      "ssl": true,
+      "port": 3465,
+      "login": "smtp@domain.com",
+      "password": "password"
     }
   },
   "filters": {

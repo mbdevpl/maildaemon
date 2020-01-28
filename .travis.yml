@@ -1,32 +1,27 @@
-dist: precise
-sudo: required
 language: python
 python:
   - "3.6"
-  - "3.7-dev"
-matrix:
-  allow_failures:
-    - python: "3.7-dev"
+services:
+  - docker
 
 install:
   - pip install -U pip
   - pip install -U -r ci_requirements.txt
 
 before_script:
-  # IMAP and POP
-  - git clone https://github.com/mbdevpl/DovecotTesting.git ../DovecotTesting
-  - bash ../DovecotTesting/SetupEnvironment.sh
-  - bash ../DovecotTesting/VerifyEnvironment.sh
+  - docker run -d -t -p 3025:3025 -p 3110:3110 -p 3143:3143 -p 3465:3465 -p 3993:3993 -p 3995:3995 greenmail/standalone:latest telnet ``docker-machine ip`` 3025
+  - sleep 30
 
 script:
-  - TEST_COMM=1 TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest discover --verbose
+  - TEST_COMM=1 python -m coverage run --branch --source . -m unittest -v test.test_smtp_connection
+  - TEST_COMM=1 TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest -v
 
 after_success:
   - python -m coverage report --show-missing
   - codecov
 
 after_script:
-  - sudo stop dovecot
+  - docker ps -q | xargs docker kill
 
 notifications:
   slack:
