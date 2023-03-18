@@ -7,7 +7,7 @@ class Package(setup_boilerplate.Package):
     """Package metadata."""
 
     name = 'maildaemon'
-    description = 'multi-server mail filtering daemon supporting IMAP, POP and SMTP'
+    description = 'Multi-server mail filtering daemon supporting IMAP, POP and SMTP.'
     url = 'https://github.com/mbdevpl/maildaemon'
     classifiers = [
         'Development Status :: 1 - Planning',
