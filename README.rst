@@ -232,7 +232,7 @@ Start Greenmail server in docker:
 
 .. code:: bash
 
-    docker run -d --name greenmail -p 3143:3143 -p 3993:3993 -p 3110:3110 -p 3995:3995 -p 3025:3025 -p 3465:3465 -e GREENMAIL_OPTS='-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled -Dgreenmail.verbose -Dgreenmail.users=login:password@domain.com' -t greenmail/standalone:latest
+    docker run --rm -d --name greenmail -p 3143:3143 -p 3993:3993 -p 310:3110 -p 3995:3995 -p 3025:3025 -p 3465:3465 -e GREENMAIL_OPTS='-Dgreenmail.verbose -Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=login:password@domain.com -Dgreenmail.users.login=email -Dgreenmail.auth.disabled' -t greenmail/standalone:2.0.0
 
 Make sure that services are running:
 
