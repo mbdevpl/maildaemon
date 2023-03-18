@@ -2,7 +2,6 @@
 
 import logging
 import os
-import pathlib
 import typing as t
 import unittest
 
@@ -12,15 +11,14 @@ from maildaemon.imap_connection import IMAPConnection
 from maildaemon.imap_cache import IMAPCache
 from maildaemon.message_filter import MessageFilter
 
-_LOG = logging.getLogger(__name__)
+from .config import TEST_CONFIG_PATH
 
-_HERE = pathlib.Path(__file__).parent
-_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+_LOG = logging.getLogger(__name__)
 
 
 class Tests(unittest.TestCase):
 
-    config = load_config(_TEST_CONFIG_PATH)
+    config = load_config(TEST_CONFIG_PATH)
 
     def test_construct(self):
         def func1(_: str):

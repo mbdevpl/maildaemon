@@ -3,26 +3,24 @@
 import email
 import logging
 import os
-import pathlib
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.smtp_daemon import SMTPDaemon
 
-_LOG = logging.getLogger(__name__)
+from .config import TEST_CONFIG_PATH, TEST_MESSAGE_1_PATH
 
-_HERE = pathlib.Path(__file__).parent
-_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+_LOG = logging.getLogger(__name__)
 
 
 @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                      'skipping tests that require server connection')
 class Tests(unittest.TestCase):
 
-    config = load_config(_TEST_CONFIG_PATH)
+    config = load_config(TEST_CONFIG_PATH)
 
     def test_update(self):
-        with _HERE.joinpath('message1.txt').open() as email_file:
+        with TEST_MESSAGE_1_PATH.open(encoding='utf-8') as email_file:
             message = email.message_from_file(email_file)
 
         connection = SMTPDaemon.from_dict(self.config['connections']['test-smtp'])

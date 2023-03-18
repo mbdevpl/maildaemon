@@ -1,6 +1,0 @@
-docutils
-pip >= 10.0
-pygments
-setuptools >= 41.0
-wheel
--rrequirements.txt
