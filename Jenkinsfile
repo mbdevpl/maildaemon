@@ -61,12 +61,14 @@ pipeline {
             steps {
               sh '''#!/usr/bin/env bash
                 set -Eeuxo pipefail
-                docker run --rm -d --name greenmail --network "container:$HOSTNAME" \
+                docker container kill maildaemon-greenmail || echo "Greenmail was not running, continuing"
+                docker run --rm -d --name maildaemon-greenmail --network "container:$HOSTNAME" \
                   -e GREENMAIL_OPTS='-Dgreenmail.verbose -Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=login:password@domain.com -Dgreenmail.users.login=email -Dgreenmail.auth.disabled' \
                   -t greenmail/standalone:2.0.0
                 .build/check_ports.sh
                 python -m coverage run --branch --source . -m unittest -v test.test_smtp_connection
                 python -m coverage run --append --branch --source . -m unittest -v
+                docker container kill maildaemon-greenmail
               '''
             }
           }
@@ -109,7 +111,7 @@ pipeline {
     always {
       sh '''#!/usr/bin/env bash
         set -Eeuxo pipefail
-        docker container kill greenmail || echo "Greenmail was not running, continuing"
+        docker container kill maildaemon-greenmail || echo "Greenmail was not running, continuing"
       '''
     }
     unsuccessful {
