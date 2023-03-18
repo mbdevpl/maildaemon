@@ -19,6 +19,7 @@ from .connection import Response, Connection
 _LOG = logging.getLogger(__name__)
 _TIME = timing.get_timing_group(__name__)
 
+_BACKSLASH = '\\'
 TIMEOUT = 10
 
 socket.setdefaulttimeout(TIMEOUT)
@@ -30,7 +31,7 @@ class IMAPConnection(Connection):
     According to imaplib.IMAP4 documentation: "All IMAP4rev1 commands are supported".
     IMAP version 4 revision 1: https://tools.ietf.org/html/rfc3501
 
-    This class aims at simplyfing usage of those IMAP commands but also
+    This class aims at simplifying usage of those IMAP commands but also
     at (at least partial) error handling and recovery from errors whenever possible.
     """
 
@@ -41,29 +42,31 @@ class IMAPConnection(Connection):
                  oauth: bool = False):
         super().__init__(domain, port, ssl, oauth)
 
+        self._link: t.Union[imaplib.IMAP4, imaplib.IMAP4_SSL]
         if self.ssl:
             self._link = imaplib.IMAP4_SSL(self.domain, self.port)
         else:
             self._link = imaplib.IMAP4(self.domain, self.port)
         # self._link.debug = 4
 
-        self._folder = None  # type: str
+        self._folder: t.Optional[str] = None
 
     def connect(self) -> None:
         """Use imaplib.login() command."""
         status = None
+        if self.oauth:
+            status, response = self._connect_oauth()
+            return
         try:
-            if self.oauth:
-                status, response = self._connect_oauth()
-            else:
-                status, response = self._link.login(self.login, self.password)
-            _LOG.info('%s%s%s: login(%s, %s) status: %s, response: %s%s%s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL,
-                      self.login, '***', status,
-                      colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
+            status, response = self._link.login(self.login, self.password)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: login(%s, %s) failed', self, self.login, '***')
             raise RuntimeError('connect() failed') from err
+        _LOG.info(
+            '%s%s%s: login(%s, %s) status: %s, response: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+            self.login, '***', status,
+            colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('connect() failed')
@@ -90,7 +93,7 @@ class IMAPConnection(Connection):
                 token = oauth.refresh_token(
                     self.oauth_data['token_uri'], client_id=self.oauth_data['client_id'],
                     client_secret=self.oauth_data['client_secret'])
-                with token_path.open('w') as token_file:
+                with token_path.open('w', encoding='utf-8') as token_file:
                     json.dump(token, token_file)
                 token_valid = True
 
@@ -107,10 +110,10 @@ class IMAPConnection(Connection):
                 self.oauth_data['token_uri'],
                 authorization_response=authorization_response,
                 client_secret=self.oauth_data['client_secret'])
-            with token_path.open('w') as token_file:
+            with token_path.open('w', encoding='utf-8') as token_file:
                 json.dump(token, token_file)
 
-        with token_path.open() as token_file:
+        with token_path.open(encoding='utf-8') as token_file:
             token = json.load(token_file)
         auth_string = f'''user={self._login}\1auth=Bearer {token['access_token']}\1\1'''
 
@@ -128,44 +131,43 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.noop()
-            _LOG.info(
-                '%s%s%s: noop() status: %s, response: %s%s%s',
-                colorama.Style.DIM, self, colorama.Style.RESET_ALL,
-                status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
             # raise RuntimeError('is_alive() failed') from err
         except OSError as err:
             _LOG.warning('%s: noop() failed due to %s: %s', self, type(err).__name__, err)
             # raise RuntimeError('is_alive() failed') from err
+        else:
+            _LOG.info(
+                '%s%s%s: noop() status: %s, response: %s%s%s',
+                colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+                status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         return status == 'OK'
 
-    '''
-    def retrieve_namespace(self):
-        """
-        Use imaplib.namespace() command.
-        """
-
-        status, namespace = self._link.namespace()
-        _LOG.debug('namespace() status: %s', status)
-        _LOG.debug('namespace: %s', [r.decode() for r in namespace])
-        if status != 'OK':
-            raise RuntimeError('namespace() status: "{}"'.format(status))
-    '''
+    # def retrieve_namespace(self):
+    #     """
+    #     Use imaplib.namespace() command.
+    #     """
+    #     status, namespace = self._link.namespace()
+    #     _LOG.debug('namespace() status: %s', status)
+    #     _LOG.debug('namespace: %s', [r.decode() for r in namespace])
+    #     if status != 'OK':
+    #         raise RuntimeError('namespace() status: "{}"'.format(status))
 
     def retrieve_folders_with_flags(self) -> t.List[t.Tuple[str, t.Set[str]]]:
         """Use imaplib.list() command."""
         status = None
         try:
             status, raw_folders = self._link.list()
-            folders = [r.decode() for r in raw_folders]
-            _LOG.info('%s%s%s: list() status: %s, folders: %s%s%s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL,
-                      status, colorama.Style.DIM, folders, colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: list() failed', self)
             raise RuntimeError('retrieve_folders() failed') from err
+        folders = [r.decode() for r in raw_folders]
+        _LOG.info(
+            '%s%s%s: list() status: %s, folders: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+            status, colorama.Style.DIM, folders, colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('retrieve_folders() failed')
@@ -217,12 +219,12 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.select(f'"{folder}"')
-            _LOG.info('%s%s%s: select("%s") status: %s, response: %s%s%s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder,
-                      status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: select("%s") failed', self, folder)
             raise RuntimeError('open_folder() failed') from err
+        _LOG.info('%s%s%s: select("%s") status: %s, response: %s%s%s',
+                    colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder,
+                    status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('open_folder() failed')
@@ -240,13 +242,13 @@ class IMAPConnection(Connection):
         try:
             with _TIME.measure('retrieve_message_ids') as timer:
                 status, response = self._link.uid('search', None, 'ALL')
-            _LOG.info(
-                '%s%s%s: search(%s, %s) completed in %fs status: %s, response: %s%s%s',
-                colorama.Style.DIM, self, colorama.Style.RESET_ALL, None, 'ALL', timer.elapsed,
-                status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: search(%s, %s) failed', self, None, 'ALL')
             raise RuntimeError('retrieve_message_ids() failed') from err
+        _LOG.info(
+            '%s%s%s: search(%s, %s) completed in %fs status: %s, response: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL, None, 'ALL', timer.elapsed,
+            status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('retrieve_message_ids() failed')
@@ -358,7 +360,7 @@ class IMAPConnection(Connection):
         try:
             status, response = self._link.uid(
                 'store', ','.join([str(message_id) for message_id in message_ids]), command,
-                f'({" ".join(["\\{}".format(flag) for flag in flags])})')
+                f'({" ".join([f"{_BACKSLASH}{flag}" for flag in flags])})')
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: store(%s, "%s", %s) failed', self, message_ids, command, flags)
             raise RuntimeError('alter_messages_flags() failed') from err
@@ -419,13 +421,14 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.append(folder, flags, date, body)
-            _LOG.info('%s%s%s: append("%s", %s, "%s", ... (%i bytes)) status: %s, response: %s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder, flags, date,
-                      len(body), status, [r for r in response])
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: append("%s", %s, "%s", ... (%i bytes)) failed',
                            self, folder, flags, date, len(body))
             raise RuntimeError('add_message() failed') from err
+        _LOG.info(
+            '%s%s%s: append("%s", %s, "%s", ... (%i bytes)) status: %s, response: %s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL, folder, flags, date,
+            len(body), status, [r for r in response])
 
         if status != 'OK':
             raise RuntimeError('add_message() failed')
@@ -448,13 +451,13 @@ class IMAPConnection(Connection):
             status, response = self._link.uid(
                 'copy', ','.join([str(message_id) for message_id in message_ids]),
                 f'"{target_folder}"')
-            _LOG.info(
-                '%s%s%s: copy(%s, "%s") status: %s, response: %s%s%s',
-                colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, target_folder,
-                status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: copy(%s, "%s") failed', self, message_ids, target_folder)
             raise RuntimeError('copy_messages() failed') from err
+        _LOG.info(
+            '%s%s%s: copy(%s, "%s") status: %s, response: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, target_folder,
+            status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('copy_messages() failed')
@@ -482,11 +485,11 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.expunge()
-            _LOG.info('%s: expunge() status: %s, response: %s',
-                      self, status, [r for r in response])
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: expunge() failed', self)
             raise RuntimeError('purge_deleted_messages() failed') from err
+        _LOG.info(
+            '%s: expunge() status: %s, response: %s', self, status, [r for r in response])
 
         if status != 'OK':
             raise RuntimeError('purge_deleted_messages() failed')
@@ -513,12 +516,13 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.close()
-            _LOG.info('%s%s%s: close() status: %s, response: %s%s%s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL,
-                      status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: close() failed', self)
             raise RuntimeError('close_folder() failed') from err
+        _LOG.info(
+            '%s%s%s: close() status: %s, response: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+            status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'OK':
             raise RuntimeError('close_folder() failed')
@@ -532,12 +536,13 @@ class IMAPConnection(Connection):
         status = None
         try:
             status, response = self._link.logout()
-            _LOG.info('%s%s%s: logout() status: %s, response: %s%s%s',
-                      colorama.Style.DIM, self, colorama.Style.RESET_ALL,
-                      status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: logout() failed', self)
             raise RuntimeError('disconnect() failed') from err
+        _LOG.info(
+            '%s%s%s: logout() status: %s, response: %s%s%s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL,
+            status, colorama.Style.DIM, Response(response), colorama.Style.RESET_ALL)
 
         if status != 'BYE':
             raise RuntimeError('disconnect() failed')

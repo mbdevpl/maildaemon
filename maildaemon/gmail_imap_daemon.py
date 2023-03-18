@@ -1,8 +1,7 @@
 
 import logging
 
-import oauth2
-import oauth2.clients.imap
+from oauthlib import oauth2
 
 from .imap_daemon import IMAPDaemon
 
@@ -18,7 +17,7 @@ class GmailIMAPDaemon(IMAPDaemon):
         if not self.ssl:
             raise RuntimeError('only SSL-enabled connections are supported when using OAuth2')
 
-        url = 'https://mail.google.com/mail/b/{}/imap/'.format(self.login)
+        url = f'https://mail.google.com/mail/b/{self.login}/imap/'
         consumer = oauth2.Consumer(consumer_key, consumer_secret)
         token = oauth2.Token(user_token, user_secret)
         self._link = oauth2.clients.imap.IMAP4_SSL(self.domain, self.port)
@@ -27,7 +26,7 @@ class GmailIMAPDaemon(IMAPDaemon):
         _LOG.debug('authenticate() status: %s', status)
         _LOG.debug('response: %s', [r.decode() for r in response])
         if status != 'OK':
-            raise RuntimeError('login() status: "{}"'.format(status))
+            raise RuntimeError(f'login() status: "{status}"')
 
     def update_folders(self):
         super().update_folders()
