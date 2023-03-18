@@ -2,21 +2,19 @@
 
 import email
 import os
-import pathlib
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.smtp_connection import SMTPConnection
 
-_HERE = pathlib.Path(__file__).parent
-_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+from .config import TEST_CONFIG_PATH, TEST_MESSAGE_1_PATH, TEST_MESSAGE_2_PATH
 
 
 @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                      'skipping tests that require server connection')
 class Tests(unittest.TestCase):
 
-    config = load_config(_TEST_CONFIG_PATH)
+    config = load_config(TEST_CONFIG_PATH)
 
     def test_connect(self):
         smtp = SMTPConnection.from_dict(self.config['connections']['test-smtp'])
@@ -29,7 +27,7 @@ class Tests(unittest.TestCase):
         smtp.disconnect()
 
     def test_send_message(self):
-        with _HERE.joinpath('message1.txt').open() as email_file:
+        with TEST_MESSAGE_1_PATH.open(encoding='utf-8') as email_file:
             message = email.message_from_file(email_file)
 
         smtp = SMTPConnection.from_dict(self.config['connections']['test-smtp'])
@@ -42,7 +40,7 @@ class Tests(unittest.TestCase):
         smtp.disconnect()
 
     def test_send_message_ssl(self):
-        with _HERE.joinpath('message2.txt').open() as email_file:
+        with TEST_MESSAGE_2_PATH.open(encoding='utf-8') as email_file:
             message = email.message_from_file(email_file)
 
         smtp = SMTPConnection.from_dict(self.config['connections']['test-smtp-ssl'])

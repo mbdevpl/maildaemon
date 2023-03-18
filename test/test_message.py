@@ -3,17 +3,15 @@
 import email
 import logging
 import os
-import pathlib
 import unittest
 
 from maildaemon.config import load_config
 from maildaemon.imap_connection import IMAPConnection
 from maildaemon.message import Message
 
-_LOG = logging.getLogger(__name__)
+from .config import TEST_CONFIG_PATH
 
-_HERE = pathlib.Path(__file__).parent
-_TEST_CONFIG_PATH = _HERE.joinpath('maildaemon_test_config.json')
+_LOG = logging.getLogger(__name__)
 
 
 class Tests(unittest.TestCase):
@@ -25,7 +23,7 @@ class Tests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                          'skipping tests that require server connection')
     def test_from_email_message(self):
-        config = load_config(_TEST_CONFIG_PATH)
+        config = load_config(TEST_CONFIG_PATH)
         folder = 'INBOX'
         connection = IMAPConnection.from_dict(config['connections']['test-imap-ssl'])
         connection.connect()
