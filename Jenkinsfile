@@ -9,7 +9,6 @@ pipeline {
   }
 
   environment {
-    PYTHON_VERSION = '3.11'
     PYTHON_MODULES = 'maildaemon test *.py'
   }
 
@@ -17,7 +16,7 @@ pipeline {
     dockerfile {
       additionalBuildArgs '--build-arg USER_ID=${USER_ID} --build-arg GROUP_ID=${GROUP_ID}' \
         + ' --build-arg AUX_GROUP_IDS="${AUX_GROUP_IDS}" --build-arg TIMEZONE=${TIMEZONE}' \
-        + ' --build-arg PYTHON_VERSION=${PYTHON_VERSION}'
+        + ' --build-arg PYTHON_VERSION=3.11'
       args '--group-add 133 --group-add 997 --group-add 999 --group-add 1001' \
         + ' -v "/var/run/docker.sock:/var/run/docker.sock"'
       label 'docker'
