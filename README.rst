@@ -55,7 +55,7 @@ For simplest installation use :bash:`pip`:
     pip3 install maildaemon
 
 
-Python 3.6 or later is required, and required dependencies defined in `<requirements.txt>`_
+Python 3.9 or later is required, and required dependencies defined in `<requirements.txt>`_
 will be automatically installed too.
 
 Maildaemon works based on a JSON configuration file. If it doesn't exist,
