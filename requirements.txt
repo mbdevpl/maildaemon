@@ -1,10 +1,10 @@
 colorama ~= 0.4
 colorlog ~= 6.7
 encrypted-config ~= 0.1
-oauthlib[rsa]
-ordered-set
+oauthlib[rsa] ~= 3.2
+ordered-set ~= 4.1
 python-daemon ~= 3.0
 python-dateutil ~= 2.8
-requests-oauthlib
+requests-oauthlib ~= 1.3
 timing ~= 0.5
 version-query >= 1.3
