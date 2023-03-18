@@ -27,9 +27,9 @@ def load_config(path: pathlib.Path = DEFAULT_CONFIG_PATH):
         _LOG.debug('decrypting configuration...')
         try:
             config = decrypt_json(config, normalize_path(pathlib.Path(config['private-key'])))
-            _LOG.debug('decrypted configuration')
         except rsa.pkcs1.DecryptionError as err:
-            raise ValueError('failed to decrypt using {}'.format(config['private-key'])) from err
+            raise ValueError(f'failed to decrypt using {config["private-key"]}') from err
+        _LOG.debug('decrypted configuration')
     try:
         validate_config(config)
     except AssertionError as err:

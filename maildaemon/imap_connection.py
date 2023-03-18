@@ -284,15 +284,15 @@ class IMAPConnection(Connection):
             with _TIME.measure('retrieve_messages_parts') as timer:
                 status, messages_data = self._link.uid(
                     'fetch', ','.join([str(message_id) for message_id in message_ids]),
-                    '({})'.format(' '.join(parts)))
-            _LOG.info(
-                '%s%s%s: fetch(%s, %s) completed in %fs status: %s, len(messages_data): %i',
-                colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, parts,
-                timer.elapsed, status, len(messages_data))
-            # _LOG.debug('data: %s', data) # large output
+                    f'({" ".join(parts)})')
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: fetch(%s, %s) failed', self, message_ids, parts)
             raise RuntimeError('retrieve_messages_parts() failed') from err
+        _LOG.info(
+            '%s%s%s: fetch(%s, %s) completed in %fs status: %s, len(messages_data): %i',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, parts,
+            timer.elapsed, status, len(messages_data))
+        # _LOG.debug('data: %s', data) # large output
 
         if status != 'OK':
             raise RuntimeError('retrieve_messages_parts() failed')
@@ -358,14 +358,14 @@ class IMAPConnection(Connection):
         try:
             status, response = self._link.uid(
                 'store', ','.join([str(message_id) for message_id in message_ids]), command,
-                '({})'.format(' '.join(['\\{}'.format(flag) for flag in flags])))
-            _LOG.info(
-                '%s%s%s: store(%s, %s, %s) status: %s, response: %s',
-                colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, command, flags,
-                status, response)
+                f'({" ".join(["\\{}".format(flag) for flag in flags])})')
         except imaplib.IMAP4.error as err:
             _LOG.exception('%s: store(%s, "%s", %s) failed', self, message_ids, command, flags)
             raise RuntimeError('alter_messages_flags() failed') from err
+        _LOG.info(
+            '%s%s%s: store(%s, %s, %s) status: %s, response: %s',
+            colorama.Style.DIM, self, colorama.Style.RESET_ALL, message_ids, command, flags,
+            status, response)
 
         if status != 'OK':
             raise RuntimeError('alter_messages_flags() failed')

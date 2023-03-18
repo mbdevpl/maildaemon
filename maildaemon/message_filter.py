@@ -138,5 +138,5 @@ class MessageFilter:
             'connections': self._connections,
             'condition': self._condition,
             'actions': [
-                '{}(message, {})'.format(action.__name__, ', '.join([str(arg) for arg in args]))
+                f'{action.__name__}(message, {", ".join([str(arg) for arg in args])})'
                 for action, args in self._actions]})
