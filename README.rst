@@ -12,23 +12,23 @@ maildaemon
 Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
 
 .. image:: https://img.shields.io/pypi/v/maildaemon.svg
-    :target: https://pypi.python.org/pypi/maildaemon
+    :target: https://pypi.org/project/maildaemon
     :alt: package version from PyPI
 
-.. image:: https://travis-ci.com/mbdevpl/maildaemon.svg?branch=master
-    :target: https://travis-ci.com/mbdevpl/maildaemon
-    :alt: build status from Travis CI
+.. image:: https://github.com/mbdevpl/maildaemon/actions/workflows/python.yml/badge.svg?branch=main
+    :target: https://github.com/mbdevpl/maildaemon/actions
+    :alt: build status from GitHub
 
-.. image:: https://api.codacy.com/project/badge/Grade/b35bf4a73a724854b0ba1cef4385c6f7
-    :target: https://www.codacy.com/app/mbdevpl/maildaemon
-    :alt: grade from Codacy
-
-.. image:: https://codecov.io/gh/mbdevpl/maildaemon/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/mbdevpl/maildaemon/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/mbdevpl/maildaemon
     :alt: test coverage from Codecov
 
+.. image:: https://api.codacy.com/project/badge/Grade/b35bf4a73a724854b0ba1cef4385c6f7
+    :target: https://app.codacy.com/gh/mbdevpl/maildaemon
+    :alt: grade from Codacy
+
 .. image:: https://img.shields.io/github/license/mbdevpl/maildaemon.svg
-    :target: https://github.com/mbdevpl/maildaemon/blob/master/NOTICE
+    :target: NOTICE
     :alt: license
 
 The goal of this library is to enable unified filtering for various e-mail servers,
