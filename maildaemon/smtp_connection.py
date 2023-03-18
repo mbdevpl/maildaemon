@@ -21,6 +21,7 @@ class SMTPConnection(Connection):
     def __init__(self, domain: str, port: t.Optional[int] = None, ssl: bool = True):
         super().__init__(domain, port, ssl)
 
+        self._link: t.Union[smtplib.SMTP, smtplib.SMTP_SSL]
         if self.ssl:
             self._link = smtplib.SMTP_SSL(self.domain, self.port, timeout=TIMEOUT)
         else:
@@ -36,9 +37,10 @@ class SMTPConnection(Connection):
         status = 0
         try:
             status, response = self._link.starttls()
-            _LOG.info('%s: starttls() status: %s, response: %s', self, status, response.decode())
         except smtplib.SMTPException:
             _LOG.warning('%s: starttls() failed', self)
+        else:
+            _LOG.info('%s: starttls() status: %s, response: %s', self, status, response.decode())
 
         if status in range(200, 300):
             self.ssl = True
@@ -48,12 +50,13 @@ class SMTPConnection(Connection):
         status = 0
         try:
             status, response = self._link.login(self.login, self.password)
-            _LOG.info(
-                '%s: login(%s, %s) status: %s, response: %s',
-                self, self.login, '***', status, response.decode())
         except smtplib.SMTPException as err:
             _LOG.exception('%s: login(%s, %s) failed', self, self.login, '***')
             raise RuntimeError('connect() failed') from err
+        else:
+            _LOG.info(
+                '%s: login(%s, %s) status: %s, response: %s',
+                self, self.login, '***', status, response.decode())
 
         if status not in range(200, 300):
             raise RuntimeError('connect() failed')
@@ -62,20 +65,23 @@ class SMTPConnection(Connection):
         status = 0
         try:
             status, response = self._link.noop()
-            _LOG.info('%s: noop() status: %s, response: %s', self, status, response.decode())
         except smtplib.SMTPException:
             _LOG.exception('%s: noop() failed', self)
+        else:
+            _LOG.info('%s: noop() status: %s, response: %s', self, status, response.decode())
 
         return status in range(200, 300)
 
     def send_message(self, message: email.message.Message) -> None:
+        """Send an e-mail using SMTP."""
         status = None
         try:
             status = self._link.send_message(message)
-            _LOG.info('%s: send_message(%s) status: %s', self, '***', status)
         except smtplib.SMTPException as err:
             _LOG.exception('%s: send_message(%s) failed', self, '***')
             raise RuntimeError('send_message() failed') from err
+        else:
+            _LOG.info('%s: send_message(%s) status: %s', self, '***', status)
 
         if not isinstance(status, dict) or len(status) > 0:
             raise RuntimeError('send_message() failed')
@@ -84,10 +90,11 @@ class SMTPConnection(Connection):
         status = 0
         try:
             status, response = self._link.quit()
-            _LOG.info('%s: quit() status: %s, response: %s', self, status, response.decode())
         except smtplib.SMTPException as err:
             _LOG.exception('%s: quit() failed', self)
             raise RuntimeError('disconnect() failed') from err
+        else:
+            _LOG.info('%s: quit() status: %s, response: %s', self, status, response.decode())
 
         if status not in range(200, 300):
             raise RuntimeError('disconnect() failed')
