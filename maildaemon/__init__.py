@@ -1,4 +1,4 @@
-"""This is "__init__.py" file of maildaemon module."""
+"""Initialization of maildaemon package."""
 
 from ._logging import configure_logging
 

@@ -1,4 +1,4 @@
-"""This is "__init__.py" file of tests for maildaemon."""
+"""Initialization of tests of maildaemon package."""
 
 import logging
 
