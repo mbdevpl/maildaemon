@@ -1,7 +1,7 @@
-colorama
+colorama ~= 0.4
 colorlog ~= 6.7
-daemon
-encrypted-config
+daemon ~= 1.2
+encrypted-config ~= 0.1
 oauthlib[rsa]
 ordered-set
 python-dateutil
