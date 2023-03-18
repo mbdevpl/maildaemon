@@ -99,7 +99,7 @@ The configuration file has two sections:
       "filters": { }
     }
 
-A complete example is provided in `<test/maildaemon_test_config.json>`_.
+A complete example is provided in `<test/examples/maildaemon_test_config.json>`_.
 
 
 Connections
