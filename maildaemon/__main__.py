@@ -4,6 +4,7 @@ import argparse
 import logging
 import pathlib
 
+import boilerplates.logging
 import colorama
 import daemon
 
@@ -14,6 +15,13 @@ from .message_filter import MessageFilter
 from .daemon_group import DaemonGroup
 
 _LOG = logging.getLogger(__name__)
+
+
+class Logging(boilerplates.logging.Logging):
+    """Logging configuration."""
+
+    packages = ['maildaemon']
+    # level_package = logging.INFO
 
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
@@ -145,4 +153,5 @@ def main(args=None):
 
 
 if __name__ == '__main__':
+    Logging.configure()
     main()

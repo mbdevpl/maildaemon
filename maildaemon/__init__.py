@@ -1,7 +1,5 @@
 """Initialization of maildaemon package."""
 
-from ._logging import configure_logging
-
 # from .config import load_config
 
 from .connection import Connection
@@ -24,5 +22,3 @@ from .folder import Folder
 # from .gmail_imap_daemon import GmailIMAPDaemon
 
 __all__ = ['Connection', 'IMAPConnection', 'Message', 'Folder']
-
-configure_logging()
