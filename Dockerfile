@@ -41,14 +41,14 @@ RUN set -Eeuxo pipefail && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-# prepare maildaemon for testing
-
 WORKDIR /home/user/maildaemon
 
 COPY --chown=${USER_ID}:${GROUP_ID} requirements*.txt ./
 
 RUN set -Eeuxo pipefail && \
-  pip3 install -r requirements_ci.txt
+  pip3 install --no-cache-dir -r requirements_ci.txt
+
+# prepare maildaemon for testing
 
 USER user
 

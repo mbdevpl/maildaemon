@@ -18,8 +18,8 @@ class Package(setup_boilerplate.Package):
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Utilities'
-        ]
+        'Topic :: Utilities',
+        'Typing :: Typed']
     keywords = ['e-mail', 'filter', 'daemon', 'imap', 'pop', 'smtp']
     entry_points = {
         'console_scripts': [
