@@ -21,11 +21,7 @@ class Package(boilerplates.setup.Package):
         'Topic :: Utilities',
         'Typing :: Typed']
     keywords = ['e-mail', 'filter', 'daemon', 'imap', 'pop', 'smtp']
-    entry_points = {
-        'console_scripts': [
-            'maildaemon = maildaemon.__main__:main'
-            ]
-        }
+    entry_points = {'console_scripts': ['maildaemon = maildaemon.__main__:main']}
 
 
 if __name__ == '__main__':
