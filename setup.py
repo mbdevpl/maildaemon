@@ -1,9 +1,9 @@
 """Setup script for maildaemon package."""
 
-import setup_boilerplate
+import boilerplates.setup
 
 
-class Package(setup_boilerplate.Package):
+class Package(boilerplates.setup.Package):
     """Package metadata."""
 
     name = 'maildaemon'
@@ -18,14 +18,10 @@ class Package(setup_boilerplate.Package):
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Utilities'
-        ]
+        'Topic :: Utilities',
+        'Typing :: Typed']
     keywords = ['e-mail', 'filter', 'daemon', 'imap', 'pop', 'smtp']
-    entry_points = {
-        'console_scripts': [
-            'maildaemon = maildaemon.__main__:main'
-            ]
-        }
+    entry_points = {'console_scripts': ['maildaemon = maildaemon.__main__:main']}
 
 
 if __name__ == '__main__':

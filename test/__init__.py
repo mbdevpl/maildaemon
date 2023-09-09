@@ -1,8 +1,14 @@
-"""This is "__init__.py" file of tests for maildaemon."""
+"""Initialization of tests of maildaemon package."""
 
 import logging
 
-from maildaemon._logging import configure_logging
+from maildaemon.__main__ import Logging
 
-configure_logging()
-logging.getLogger().setLevel(logging.DEBUG)
+
+class TestsLogging(Logging):
+    """Logging configuration."""
+
+    level_global = logging.DEBUG
+
+
+TestsLogging.configure()

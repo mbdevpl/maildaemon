@@ -15,7 +15,7 @@ class SMTPDaemon(Daemon, SMTPConnection):
         Daemon.__init__(self)
         SMTPConnection.__init__(self, domain, port, ssl)
 
-        self._outbox = []
+        self._outbox: t.List[t.Union[Message, email.message.Message]] = []
 
     @property
     def outbox(self):

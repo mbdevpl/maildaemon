@@ -1,6 +1,4 @@
-"""This is "__init__.py" file of maildaemon module."""
-
-from ._logging import configure_logging
+"""Initialization of maildaemon package."""
 
 # from .config import load_config
 
@@ -24,5 +22,3 @@ from .folder import Folder
 # from .gmail_imap_daemon import GmailIMAPDaemon
 
 __all__ = ['Connection', 'IMAPConnection', 'Message', 'Folder']
-
-configure_logging()

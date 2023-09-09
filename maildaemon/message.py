@@ -22,7 +22,7 @@ def recode_header(raw_data: t.Union[bytes, str]) -> str:
         try:
             return email.header.make_header([(decoded_data[0][0], 'utf-8')])
         except:
-            _LOG.exception('both "%s" and "utf-8" fail to decode the header', decoded_data[0][1])
+            _LOG.exception('both "%s" and "utf-8" failed to decode the header', decoded_data[0][1])
         raise ValueError(f'after decoding {raw_data!r}, obtained {decoded_data!r}'
                          ' which cannot be re-made into a header') from err
 
@@ -31,7 +31,8 @@ def is_name_and_address(text: str) -> bool:
     return '<' in text and '>' in text
 
 
-def split_name_and_address(text) -> tuple:
+def split_name_and_address(text: str) -> tuple:
+    """Split a given text into a name and an e-mail address."""
     if is_name_and_address(text):
         begin = text.rfind('<')
         end = text.rfind('>')
@@ -115,7 +116,7 @@ class Message:
 
     @property
     def is_unread(self) -> bool:
-        return not self.is_read()
+        return not self.is_read
 
     @property
     def is_answered(self) -> bool:
