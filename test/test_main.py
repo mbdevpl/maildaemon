@@ -1,12 +1,12 @@
 
 import contextlib
 import os
-import pathlib
 import unittest
 import unittest.mock
 
+from boilerplates.packaging_tests import run_module
+
 from maildaemon.__main__ import main
-from .test_setup import run_module
 
 from .config import TEST_CONFIG_PATH
 
