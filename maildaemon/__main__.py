@@ -21,7 +21,7 @@ class Logging(boilerplates.logging.Logging):
     """Logging configuration."""
 
     packages = ['maildaemon']
-    # level_package = logging.INFO
+    # level_global = logging.INFO
 
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
