@@ -29,7 +29,7 @@ class Tests(unittest.TestCase):
                                         new=TEST_CONFIG_PATH):
             run_module('maildaemon', '--verbose')
             run_module('maildaemon', '--quiet')
-            run_module('maildaemon', '--debug')
+            run_module('maildaemon', '-vvv')
 
     def test_bad_run(self):
         with self.assertRaises(SystemExit):

@@ -5,7 +5,8 @@ import logging
 import pathlib
 
 from boilerplates.cli import \
-    ArgumentDefaultsAndRawDescriptionHelpFormatter, make_copyright_notice, add_version_option
+    ArgumentDefaultsAndRawDescriptionHelpFormatter, make_copyright_notice, add_version_option, \
+    add_verbosity_group, get_logging_level
 import boilerplates.logging
 import colorama
 import daemon
@@ -49,19 +50,7 @@ Configuration is stored in "{DEFAULT_CONFIG_PATH}".''',
         '--daemon', '-d', action='store_true', default=False, required=False,
         help='''run as daemon''')
 
-    parser.add_argument(
-        '--quiet', '-q', action='store_true', default=False, required=False,
-        help='''do not output anything but critical errors; overrides "--verbose" and "--debug"
-        if present; sets logging level to CRITICAL''')
-
-    parser.add_argument(
-        '--verbose', '-v', action='store_true', default=False, required=False,
-        help='''output non-critical information; sets logging level to INFO''')
-
-    parser.add_argument(
-        '--debug', action='store_true', default=False, required=False,
-        help='''output information at debugging level; overrides "--verbose" if present; sets
-        logging level to DEBUG''')
+    add_verbosity_group(parser)
 
     return parser.parse_args(args)
 
@@ -72,12 +61,12 @@ def main(args=None):
 
     parsed_args = parse_args(args)
 
-    if parsed_args.verbose:
-        logging.getLogger().setLevel(logging.INFO)
-    if parsed_args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-    if parsed_args.quiet:
-        logging.getLogger().setLevel(logging.CRITICAL)
+    level = get_logging_level(parsed_args)
+    root_log = logging.getLogger()
+    _LOG.debug('setting root logger logging level to %i', level)
+    root_log.setLevel(level)
+    assert level in {root_log.getEffectiveLevel(), logging.NOTSET}, \
+        (level, root_log.getEffectiveLevel())
 
     config = load_config(parsed_args.config)
 
