@@ -4,7 +4,7 @@ import argparse
 import logging
 import pathlib
 
-from boilerplates.cli import add_version_option
+from boilerplates.cli import make_copyright_notice, add_version_option
 import boilerplates.logging
 import colorama
 import daemon
@@ -41,8 +41,7 @@ Configuration is stored in "{DEFAULT_CONFIG_PATH}".
   maildaemon -h
   maildaemon -d
 
-Copyright 2016-2023  Mateusz Bysiek  https://mbdevpl.github.io/
-''',
+{make_copyright_notice(2016, 2024, url='https://github.com/mbdevpl/maildaemon')}''',
         formatter_class=Formatter, allow_abbrev=True)
     add_version_option(parser, VERSION)
 
