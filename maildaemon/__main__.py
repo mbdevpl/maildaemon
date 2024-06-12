@@ -4,11 +4,12 @@ import argparse
 import logging
 import pathlib
 
+from boilerplates.cli import add_version_option
 import boilerplates.logging
 import colorama
 import daemon
 
-from ._version import VERSION as version
+from ._version import VERSION
 from .config import DEFAULT_CONFIG_PATH, load_config
 from .connection_group import ConnectionGroup
 from .message_filter import MessageFilter
@@ -43,7 +44,7 @@ Configuration is stored in "{DEFAULT_CONFIG_PATH}".
 Copyright 2016-2023  Mateusz Bysiek  https://mbdevpl.github.io/
 ''',
         formatter_class=Formatter, allow_abbrev=True)
-    parser.version = version
+    add_version_option(parser, VERSION)
 
     parser.add_argument(
         '--config', metavar='PATH', type=pathlib.Path, default=DEFAULT_CONFIG_PATH,
@@ -66,8 +67,6 @@ Copyright 2016-2023  Mateusz Bysiek  https://mbdevpl.github.io/
         '--debug', action='store_true', default=False, required=False,
         help='''output information at debugging level; overrides "--verbose" if present; sets
         logging level to DEBUG''')
-
-    parser.add_argument('--version', action='version')
 
     return parser.parse_args(args)
 
