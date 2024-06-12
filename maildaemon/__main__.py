@@ -4,7 +4,8 @@ import argparse
 import logging
 import pathlib
 
-from boilerplates.cli import make_copyright_notice, add_version_option
+from boilerplates.cli import \
+    ArgumentDefaultsAndRawDescriptionHelpFormatter, make_copyright_notice, add_version_option
 import boilerplates.logging
 import colorama
 import daemon
@@ -25,24 +26,19 @@ class Logging(boilerplates.logging.Logging):
     # level_global = logging.INFO
 
 
-class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
-    pass
-
-
 def parse_args(args=None):
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         prog='maildaemon',
         description=f'''Multi-server mail filtering daemon supporting IMAP, POP and SMTP.
 
-Configuration is stored in "{DEFAULT_CONFIG_PATH}".
-
-''', epilog='''examples:
+Configuration is stored in "{DEFAULT_CONFIG_PATH}".''',
+        epilog=f'''examples:
   maildaemon -h
   maildaemon -d
 
 {make_copyright_notice(2016, 2024, url='https://github.com/mbdevpl/maildaemon')}''',
-        formatter_class=Formatter, allow_abbrev=True)
+        formatter_class=ArgumentDefaultsAndRawDescriptionHelpFormatter, allow_abbrev=True)
     add_version_option(parser, VERSION)
 
     parser.add_argument(
