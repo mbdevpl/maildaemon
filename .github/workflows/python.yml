@@ -21,7 +21,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
       - run: pip install -r requirements_ci.txt
       - run: python -m coverage run --branch --source . -m unittest -v test.test_config
       - run: python -m coverage run --append --branch --source . -m unittest -v test.test_packaging
@@ -38,7 +37,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          architecture: x64
       - run: pip install build
       - run: python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1

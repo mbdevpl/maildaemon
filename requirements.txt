@@ -1,4 +1,4 @@
-boilerplates[logging] ~= 1.0
+boilerplates[cli,logging] ~= 1.0
 colorama ~= 0.4
 encrypted-config ~= 0.1
 oauthlib[rsa] ~= 3.2
