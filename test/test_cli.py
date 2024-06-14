@@ -8,6 +8,7 @@ import unittest
 import unittest.mock
 
 from boilerplates.packaging_tests import run_module
+import daemon
 
 from maildaemon.cli import main
 
@@ -52,4 +53,5 @@ class Tests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('TEST_COMM') or os.environ.get('CI'),
                          'test requires server connection')
     def test_daemon(self):
-        main(['--config', str(TEST_CONFIG_PATH), '-vv', '-d'])
+        with unittest.mock.patch.object(daemon, 'DaemonContext'):
+            main(['--config', str(TEST_CONFIG_PATH), '-vv', '-d'])
